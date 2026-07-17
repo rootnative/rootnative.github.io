@@ -1,0 +1,41 @@
+<svg width="584" height="220" viewBox="0 0 584 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="More libraries coming soon">
+  <defs>
+    <linearGradient id="icon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame">
+      <rect width="584" height="220" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="584" height="220" fill="#0D1424"/>
+    <ellipse cx="60" cy="0" rx="360" ry="180" fill="url(#glow)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="583" height="219" rx="15.5" stroke="#22304C" stroke-dasharray="6 6"/>
+
+  <rect x="28" y="28" width="44" height="44" rx="12" fill="url(#icon)"/>
+  <path d="M50 37 L53.2 46.8 L63 50 L53.2 53.2 L50 63 L46.8 53.2 L37 50 L46.8 46.8 Z" fill="#FFFFFF"/>
+
+  <text x="88" y="57" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#F8FAFC">what's next</text>
+  <text x="552" y="56" text-anchor="end" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" fill="#4A5B77">↗</text>
+
+  <text font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15.5" fill="#94A3B8">
+    <tspan x="28" y="108">More building blocks are brewing — small, focused</tspan>
+    <tspan x="28" y="133">libraries designed to work great together.</tspan>
+  </text>
+
+  <line x1="28" y1="168" x2="556" y2="168" stroke="#1D2A44"/>
+
+  <g font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#8296AD">
+    <circle cx="34" cy="193" r="4" fill="#34D399"/>
+    <text x="46" y="197.5">in the lab</text>
+    <text x="116" y="197.5" fill="#44536E">·</text>
+    <text x="128" y="197.5">watch the org to be first to know</text>
+  </g>
+</svg>
