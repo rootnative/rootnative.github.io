@@ -5,14 +5,18 @@ import { Linking, ScrollView, StyleSheet, Text } from 'react-native'
 
 import { LibraryCard } from '../components/library-card'
 import { LIBRARIES, LINKS } from '../lib/libraries'
+import { useHydrated } from '../lib/use-hydrated'
 
 export default function HomeScreen() {
   const theme = useTheme()
-  const columns = useBreakpointValue({ compact: 1, medium: 2 })
-  const titleVariant = useBreakpointValue({
+  const hydrated = useHydrated()
+  const breakpointColumns = useBreakpointValue({ compact: 1, medium: 2 })
+  const breakpointTitleVariant = useBreakpointValue({
     compact: 'displayMedium',
     medium: 'displayLarge',
   } as const)
+  const columns = hydrated ? breakpointColumns : 1
+  const titleVariant = hydrated ? breakpointTitleVariant : 'displayMedium'
 
   return (
     <>
