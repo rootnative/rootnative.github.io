@@ -4,7 +4,8 @@ export interface Library {
   description: string
   status: 'alpha' | 'experimental' | 'in the lab'
   meta?: string
-  url: string
+  githubUrl: string
+  demoUrl?: string
 }
 
 export const LIBRARIES: Library[] = [
@@ -15,7 +16,8 @@ export const LIBRARIES: Library[] = [
       'Easy-to-customise, easy-to-use UI elements for React Native & Expo — themeable by design.',
     status: 'alpha',
     meta: 'TypeScript · docs & examples available',
-    url: 'https://github.com/rootnative/ui',
+    githubUrl: 'https://github.com/rootnative/ui',
+    demoUrl: 'https://rootnative.github.io/ui/',
   },
   {
     name: 'inertia',
@@ -24,7 +26,8 @@ export const LIBRARIES: Library[] = [
       'A friendly wrapper around Reanimated that makes complex animations feel effortless.',
     status: 'alpha',
     meta: 'powered by react-native-reanimated',
-    url: 'https://github.com/rootnative/inertia',
+    githubUrl: 'https://github.com/rootnative/inertia',
+    demoUrl: 'https://rootnative.github.io/inertia/',
   },
   {
     name: 'game-engine',
@@ -33,7 +36,7 @@ export const LIBRARIES: Library[] = [
       'A lightweight game engine for React Native — build playful, interactive experiences with familiar tools.',
     status: 'experimental',
     meta: 'TypeScript',
-    url: 'https://github.com/rootnative/game-engine',
+    githubUrl: 'https://github.com/rootnative/game-engine',
   },
   {
     name: "what's next",
@@ -42,7 +45,7 @@ export const LIBRARIES: Library[] = [
       'More building blocks are brewing — small, focused libraries designed to work great together.',
     status: 'in the lab',
     meta: 'watch the org to be first to know',
-    url: 'https://github.com/orgs/rootnative/repositories',
+    githubUrl: 'https://github.com/orgs/rootnative/repositories',
   },
 ]
 
