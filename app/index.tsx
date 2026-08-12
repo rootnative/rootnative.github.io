@@ -3,7 +3,9 @@ import { useBreakpointValue, useTheme } from '@rootnative/core'
 import Head from 'expo-router/head'
 import { Linking, ScrollView, StyleSheet, Text } from 'react-native'
 
+import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
+import { MARK_UI } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { useHydrated } from '../lib/use-hydrated'
 
@@ -21,7 +23,7 @@ export default function HomeScreen() {
   return (
     <>
       <Head>
-        <title>rootnative — libraries for React Native & Expo</title>
+        <title>RootNative — libraries that power React Native & Expo apps</title>
         <meta
           name="description"
           content="rootnative builds open-source libraries that power React Native & Expo apps — UI components, animations without the boilerplate, and a lightweight game engine."
@@ -51,6 +53,7 @@ export default function HomeScreen() {
                 OPEN SOURCE · REACT NATIVE TOOLKIT
               </Typography>
             </Box>
+            <BrandMark uri={MARK_UI} size={72} label="rootnative logo" />
 
             <Typography variant={titleVariant} style={styles.title}>
               <Text style={{ color: theme.colors.primary }}>root</Text>

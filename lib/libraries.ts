@@ -1,20 +1,56 @@
+import { MARK_INERTIA, MARK_UI } from './brand-marks'
+
+export type LibraryStatus = 'in the lab' | 'experimental' | 'alpha' | 'beta' | 'stable'
+
 export interface Library {
   name: string
+  /** Material icon, used only when the library has no brand mark of its own. */
   icon: string
+  /**
+   * URL of the library's own brand mark, read from its repository at view time.
+   * A mark carries its own brand colours, so a card that has one shows it on a
+   * plain surface instead of inside the themed icon badge.
+   */
+  mark?: string
   description: string
-  status: 'alpha' | 'experimental' | 'in the lab'
+  /** Fallback shown until the npm version resolves; live status is derived from that version. */
+  status: LibraryStatus
+  /** npm package whose latest published version is shown on the card. */
+  npmPackage?: string
   meta?: string
   githubUrl: string
   demoUrl?: string
+}
+
+/**
+ * Maps a published npm version to a release status.
+ * A prerelease tag wins (`-alpha`/`-beta`/`-rc`); otherwise 0.x is
+ * experimental and >=1.0.0 is stable. `undefined` means unpublished.
+ */
+export function statusFromVersion(version: string | undefined): LibraryStatus {
+  if (!version) {
+    return 'in the lab'
+  }
+  const prerelease = version.split('-')[1]?.toLowerCase() ?? ''
+  if (prerelease.startsWith('alpha')) {
+    return 'alpha'
+  }
+  if (prerelease.startsWith('beta') || prerelease.startsWith('rc')) {
+    return 'beta'
+  }
+  const major = Number(version.split('.')[0])
+  return major >= 1 ? 'stable' : 'experimental'
 }
 
 export const LIBRARIES: Library[] = [
   {
     name: 'ui',
     icon: 'checkbox-multiple-blank-outline',
+    mark: MARK_UI,
     description:
       'Easy-to-customise, easy-to-use UI elements for React Native & Expo — themeable by design.',
     status: 'alpha',
+    npmPackage: '@rootnative/components',
     meta: 'TypeScript · docs & examples available',
     githubUrl: 'https://github.com/rootnative/ui',
     demoUrl: 'https://rootnative.github.io/ui/',
@@ -22,9 +58,11 @@ export const LIBRARIES: Library[] = [
   {
     name: 'inertia',
     icon: 'animation-outline',
+    mark: MARK_INERTIA,
     description:
       'A friendly wrapper around Reanimated that makes complex animations feel effortless.',
     status: 'alpha',
+    npmPackage: '@rootnative/inertia',
     meta: 'powered by react-native-reanimated',
     githubUrl: 'https://github.com/rootnative/inertia',
     demoUrl: 'https://rootnative.github.io/inertia/',

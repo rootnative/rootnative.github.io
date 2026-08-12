@@ -3,41 +3,88 @@ import { Box, Button, Card, Column, Row, Typography } from '@rootnative/componen
 import { useTheme } from '@rootnative/core'
 import { Linking, StyleSheet } from 'react-native'
 
-import type { Library } from '../lib/libraries'
+import { statusFromVersion, type Library } from '../lib/libraries'
+import { useNpmVersion } from '../lib/use-npm-version'
+import { BrandMark } from './brand-mark'
 
 export function LibraryCard({
   name,
   icon,
+  mark,
   description,
-  status,
+  status: fallbackStatus,
+  npmPackage,
   meta,
   githubUrl,
   demoUrl,
 }: Library) {
   const theme = useTheme()
+  const { version, ready } = useNpmVersion(npmPackage)
+  // Derive status from the published version, falling back to the static one.
+  const status = npmPackage ? statusFromVersion(version) : fallbackStatus
 
-  const statusColors =
-    status === 'alpha'
-      ? { bg: theme.colors.tertiaryContainer, fg: theme.colors.onTertiaryContainer }
-      : status === 'experimental'
-        ? { bg: theme.colors.secondaryContainer, fg: theme.colors.onSecondaryContainer }
-        : { bg: theme.colors.surfaceVariant, fg: theme.colors.onSurfaceVariant }
+  // One container role per status, most-released first.
+  const statusColors = {
+    stable: { bg: theme.colors.primaryContainer, fg: theme.colors.onPrimaryContainer },
+    beta: { bg: theme.colors.tertiaryContainer, fg: theme.colors.onTertiaryContainer },
+    alpha: { bg: theme.colors.secondaryContainer, fg: theme.colors.onSecondaryContainer },
+    experimental: { bg: theme.colors.surfaceVariant, fg: theme.colors.onSurfaceVariant },
+    'in the lab': { bg: theme.colors.surfaceVariant, fg: theme.colors.onSurfaceVariant },
+  }[status]
 
   return (
     <Card variant="outlined" style={styles.card}>
       <Column p="lg" gap="md" flex={1}>
         <Row align="center" gap="md">
-          <Box
-            p="sm"
-            style={[styles.iconBadge, { backgroundColor: theme.colors.primaryContainer }]}
-          >
-            <MaterialCommunityIcons
-              name={icon as never}
-              size={22}
-              color={theme.colors.onPrimaryContainer}
-            />
-          </Box>
+          {mark ? (
+            // A brand mark carries its own colours, so it gets no themed
+            // container behind it — a tint would fight the mark's palette.
+            // 38px matches the icon badge below (22px icon + `sm` padding),
+            // so both card types keep the same title-row height.
+            <BrandMark uri={mark} size={38} label={`${name} logo`} />
+          ) : (
+            <Box
+              p="sm"
+              style={[styles.iconBadge, { backgroundColor: theme.colors.primaryContainer }]}
+            >
+              <MaterialCommunityIcons
+                name={icon as never}
+                size={22}
+                color={theme.colors.onPrimaryContainer}
+              />
+            </Box>
+          )}
           <Typography variant="titleLarge">{name}</Typography>
+          {ready ? (
+            <Row align="center" gap="sm" style={styles.tags}>
+              <Box
+                px="sm"
+                py="xs"
+                style={[styles.statusPill, { backgroundColor: statusColors.bg }]}
+              >
+                <Typography variant="labelSmall" style={{ color: statusColors.fg }}>
+                  {status}
+                </Typography>
+              </Box>
+              {version ? (
+                <Box
+                  px="sm"
+                  py="xs"
+                  style={[
+                    styles.versionPill,
+                    {
+                      borderColor: theme.colors.outlineVariant,
+                      backgroundColor: theme.colors.surfaceContainerLow,
+                    },
+                  ]}
+                >
+                  <Typography variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    v{version}
+                  </Typography>
+                </Box>
+              ) : null}
+            </Row>
+          ) : null}
         </Row>
 
         <Typography
@@ -47,18 +94,11 @@ export function LibraryCard({
           {description}
         </Typography>
 
-        <Row align="center" gap="sm" wrap>
-          <Box px="sm" py="xs" style={[styles.statusPill, { backgroundColor: statusColors.bg }]}>
-            <Typography variant="labelSmall" style={{ color: statusColors.fg }}>
-              {status}
-            </Typography>
-          </Box>
-          {meta ? (
-            <Typography variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-              {meta}
-            </Typography>
-          ) : null}
-        </Row>
+        {meta ? (
+          <Typography variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {meta}
+          </Typography>
+        ) : null}
 
         <Row align="center" gap="sm" wrap style={styles.footer}>
           {demoUrl ? (
@@ -89,6 +129,13 @@ const styles = StyleSheet.create({
   },
   iconBadge: {
     borderRadius: 12,
+  },
+  tags: {
+    marginLeft: 'auto',
+  },
+  versionPill: {
+    borderRadius: 999,
+    borderWidth: 1,
   },
   description: {
     flexGrow: 1,
