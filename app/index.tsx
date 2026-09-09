@@ -9,7 +9,7 @@ import { LibraryCard } from '../components/library-card'
 import { Rise } from '../components/rise'
 import { MARK_UI } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
-import { CARD_DELAY, CARD_STEP, STAGGER_INTERVAL } from '../lib/motion'
+import { CARD_DELAY, CARD_STEP, ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
 import { useHydrated } from '../lib/use-hydrated'
 
 export default function HomeScreen() {
@@ -66,7 +66,12 @@ export default function HomeScreen() {
               <Rise>
                 {/* The mark drifts for as long as the page is open. The outer
                     `Rise` owns the entrance, so the two never share a key. */}
-                <Motion.View animate={{ translateY: [0, -8, 0] }} transition="float">
+                <Motion.View
+                  dataSet={ENTRANCE_MARKER}
+                  initial={{ translateY: -8 }}
+                  animate={{ translateY: 0 }}
+                  transition="float"
+                >
                   <BrandMark uri={MARK_UI} size={72} label="rootnative logo" />
                 </Motion.View>
               </Rise>

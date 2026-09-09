@@ -25,10 +25,23 @@ export const TRANSITIONS = {
   lift: { type: 'spring', tension: 320, friction: 26 },
   /** A pill that appears after the npm registry answers. */
   pill: { type: 'spring', tension: 340, friction: 18 },
-  /** The idle drift of the hero mark. Standard easing, so it never stops hard. */
+  /**
+   * The idle drift of the hero mark. Standard easing, so it never stops hard.
+   *
+   * `repeat: 'infinite'` alternates, so one leg is enough: the mark travels
+   * from its `initial` to its `animate` value and back, for ever. Keep this
+   * form for a two-point drift: it alternates for free, and the
+   * reduced-motion snap lands on `animate`, which is the resting position.
+   *
+   * A keyframe array is also safe now. Inertia 0.0.10 resolved each step of
+   * an array to a plain number under reduced motion, handed those numbers to
+   * `withSequence`, and threw `Cannot create property 'finished' on number`,
+   * which took the whole page down. Inertia 0.0.11 fixes that, and the site
+   * pins 0.0.11.
+   */
   float: {
     type: 'timing',
-    duration: 4200,
+    duration: 2600,
     easing: cubicBezier('cubic-bezier(0.4, 0, 0.2, 1)'),
     repeat: 'infinite',
   },
@@ -51,8 +64,8 @@ export const CARD_DELAY = 300
 export const CARD_STEP = 80
 
 /**
- * Marks an element that the static export bakes at `opacity: 0`, because it
- * waits for an entrance animation. Put it on every such element with the
+ * Marks an element that the static export bakes at a pre-animation value —
+ * `opacity: 0`, an offset, or both. Put it on every such element with the
  * `dataSet` prop, which react-native-web writes out as `data-entrance`.
  *
  * `app/+html.tsx` reveals all of them when the bundle never runs. Keep the
