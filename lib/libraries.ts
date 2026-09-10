@@ -1,4 +1,4 @@
-import { MARK_INERTIA, MARK_UI } from './brand-marks'
+import { MARK_GAME_ENGINE, MARK_IMPULSE, MARK_INERTIA, MARK_UI } from './brand-marks'
 
 export type LibraryStatus = 'in the lab' | 'experimental' | 'alpha' | 'beta' | 'stable'
 
@@ -68,8 +68,19 @@ export const LIBRARIES: Library[] = [
     demoUrl: 'https://rootnative.github.io/inertia/',
   },
   {
+    name: 'impulse',
+    icon: 'gesture-tap',
+    mark: MARK_IMPULSE,
+    description:
+      'Declarative gesture primitives — a gesture is written as an intent, not assembled from a builder chain.',
+    status: 'in the lab',
+    meta: 'powered by react-native-gesture-handler',
+    githubUrl: 'https://github.com/rootnative/impulse',
+  },
+  {
     name: 'game-engine',
     icon: 'gamepad-variant-outline',
+    mark: MARK_GAME_ENGINE,
     description:
       'A lightweight game engine for React Native — build playful, interactive experiences with familiar tools.',
     status: 'experimental',

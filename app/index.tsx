@@ -7,7 +7,7 @@ import { Linking, ScrollView, StyleSheet, Text } from 'react-native'
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
 import { Rise } from '../components/rise'
-import { MARK_UI } from '../lib/brand-marks'
+import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { CARD_DELAY, CARD_STEP, ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
 import { useHydrated } from '../lib/use-hydrated'
@@ -72,7 +72,10 @@ export default function HomeScreen() {
                   animate={{ translateY: 0 }}
                   transition="float"
                 >
-                  <BrandMark uri={MARK_UI} size={72} label="rootnative logo" />
+                  {/* The organisation's own mark, read from its GitHub org
+                      avatar. It is an opaque square, so unlike every library
+                      mark it takes a radius — see `BrandMark`. */}
+                  <BrandMark uri={MARK_ORG} size={72} radius={18} label="rootnative logo" />
                 </Motion.View>
               </Rise>
 
