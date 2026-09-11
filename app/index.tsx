@@ -1,27 +1,61 @@
 import { Box, Button, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
 import { useBreakpointValue, useTheme } from '@rootnative/core'
-import { Motion, Stagger } from '@rootnative/inertia'
+import { Motion, Stagger, useInterpolatedStyle, useScroll } from '@rootnative/inertia'
 import Head from 'expo-router/head'
-import { Linking, ScrollView, StyleSheet, Text } from 'react-native'
+import { Linking, StyleSheet, Text } from 'react-native'
 
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
 import { Rise } from '../components/rise'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
-import { CARD_DELAY, CARD_STEP, ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
+import { ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
+import { useReveal, useRevealSource, useSelfMeasuredTop } from '../lib/use-reveal'
 import { useHydrated } from '../lib/use-hydrated'
+
+/**
+ * The card grid is 12 columns wide, and a card takes a span rather than a
+ * share of an equal split. `ui` and `inertia` are published, documented, and
+ * have a live demo, so they take half a row each; the other three take a
+ * third. Five identical cards hid which libraries are ready to use.
+ */
+const GRID_COLUMNS = 12
+
+/** How far the footer travels on its way in, in points. */
+const FOOTER_TRAVEL = 20
 
 export default function HomeScreen() {
   const theme = useTheme()
   const hydrated = useHydrated()
-  const breakpointColumns = useBreakpointValue({ compact: 1, medium: 2 })
   const breakpointTitleVariant = useBreakpointValue({
     compact: 'displayMedium',
     medium: 'displayLarge',
   } as const)
-  const columns = hydrated ? breakpointColumns : 1
+  const breakpointFeaturedSpan = useBreakpointValue({ compact: 12, expanded: 6 })
+  const breakpointCompactSpan = useBreakpointValue({ compact: 12, medium: 6, expanded: 4 })
+  // Rule 2 of the static-export rules: the export server renders at width 0,
+  // so every breakpoint value has to start at its compact variant and change
+  // only once the client has mounted.
   const titleVariant = hydrated ? breakpointTitleVariant : 'displayMedium'
+  const featuredSpan = hydrated ? breakpointFeaturedSpan : 12
+  const compactSpan = hydrated ? breakpointCompactSpan : 12
+
+  // The page scrolls its own entrance. `useScroll` puts the offset on the UI
+  // thread, and `useRevealSource` collects the three measurements the trigger
+  // needs: the grid's position, each cell's position, and the viewport.
+  const { scrollY, onScroll } = useScroll()
+  const { source, onGridLayout, onCellLayout, onViewportLayout, onContentSizeChange } =
+    useRevealSource(scrollY)
+
+  // The footer is a direct child of the page column, and the page column is
+  // the scroll content's first child, so the footer measures its own absolute
+  // position in one step — no grid chain to walk.
+  const { top: footerTop, onLayout: onFooterLayout } = useSelfMeasuredTop()
+  const footerProgress = useReveal(source, footerTop)
+  const footerStyle = useInterpolatedStyle(footerProgress, {
+    opacity: [0, 1],
+    translateY: [FOOTER_TRAVEL, 0],
+  })
 
   return (
     <>
@@ -32,14 +66,20 @@ export default function HomeScreen() {
           content="rootnative builds open-source libraries that power React Native & Expo apps — UI components, animations without the boilerplate, and a lightweight game engine."
         />
       </Head>
-      <ScrollView
+      <Motion.ScrollView
         style={{ backgroundColor: theme.colors.background }}
         contentContainerStyle={styles.scroll}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        onLayout={onViewportLayout}
+        onContentSizeChange={onContentSizeChange}
       >
         <Column gap="xl" px="lg" style={styles.page}>
-          {/* `Stagger` gives each direct child its own delay, so the hero
-              cascades in without a single hand-written delay. `Column` passes
-              its children straight through, so the `gap` still applies. */}
+          {/* The hero is the one block that cascades on load, because it is
+              the one block a visitor already sees. Everything below it waits
+              for the scroll that brings it into view. `Stagger` gives each
+              direct child its own delay, and `Column` passes its children
+              straight through, so the `gap` still applies. */}
           <Column align="center" gap="lg" style={styles.hero}>
             <Stagger interval={STAGGER_INTERVAL}>
               <Rise>
@@ -91,7 +131,8 @@ export default function HomeScreen() {
                   variant="bodyLarge"
                   style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}
                 >
-                  Building libraries that power React Native & Expo apps
+                  Animation, UI, gestures, and games — four small libraries you can adopt one at a
+                  time.
                 </Typography>
               </Rise>
 
@@ -124,15 +165,27 @@ export default function HomeScreen() {
             </Stagger>
           </Column>
 
-          {/* `Grid` wraps every child in a cell of its own, so a `Stagger`
-              here would read as one slot. The cards take an explicit delay. */}
-          <Grid columns={columns} gap="md">
+          {/* Each `Grid.Cell` reports its own position, and the grid reports
+              its own, because a cell has to be a direct child of the grid —
+              `Grid.Cell` dev-errors otherwise, so a card cannot render its
+              own cell. The two sum to the card's absolute position. */}
+          <Grid columns={GRID_COLUMNS} gap="md" onLayout={onGridLayout}>
             {LIBRARIES.map((library, index) => (
-              <LibraryCard key={library.name} delay={CARD_DELAY + index * CARD_STEP} {...library} />
+              <Grid.Cell
+                key={library.name}
+                span={library.featured ? featuredSpan : compactSpan}
+                onLayout={(event) => onCellLayout(index, event)}
+              >
+                <LibraryCard index={index} reveal={source} {...library} />
+              </Grid.Cell>
             ))}
           </Grid>
 
-          <Rise delay={CARD_DELAY + LIBRARIES.length * CARD_STEP}>
+          <Motion.View
+            dataSet={ENTRANCE_MARKER}
+            onLayout={onFooterLayout}
+            style={[styles.stretch, footerStyle]}
+          >
             <Column align="center" gap="md" style={styles.footer}>
               <Row gap="sm" wrap justify="center">
                 <Button variant="text" onPress={() => Linking.openURL(LINKS.uiDocs)}>
@@ -149,13 +202,13 @@ export default function HomeScreen() {
                 variant="bodySmall"
                 style={[styles.footerNote, { color: theme.colors.onSurfaceVariant }]}
               >
-                Everything here is early-stage and evolving fast — ⭐ stars and feedback shape what
-                gets built next.
+                Early-stage and moving fast. Open an issue or star a repository — that is what sets
+                what we build next.
               </Typography>
             </Column>
-          </Rise>
+          </Motion.View>
         </Column>
-      </ScrollView>
+      </Motion.ScrollView>
     </>
   )
 }

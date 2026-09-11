@@ -45,6 +45,18 @@ export const TRANSITIONS = {
     easing: cubicBezier('cubic-bezier(0.4, 0, 0.2, 1)'),
     repeat: 'infinite',
   },
+  /**
+   * The hover and focus layer of a card. One `useGesture` drives the lift, the
+   * shadow, the border colour, and the brand mark from this one curve, so the
+   * four never drift apart.
+   */
+  hover: { type: 'spring', tension: 260, friction: 22 },
+  /**
+   * The idle bob of the inertia preview. A spring, so the bars settle instead
+   * of turning at the top, and `repeat: 'infinite'` alternates the leg — the
+   * same two-point form the hero mark uses.
+   */
+  bob: { type: 'spring', tension: 150, friction: 11, repeat: 'infinite' },
 } satisfies NamedTransitions
 
 /**
@@ -57,11 +69,14 @@ export const ENTRANCE: TimingTransition = TRANSITIONS.entrance
 /** The gap between two hero entrance slots, in milliseconds. */
 export const STAGGER_INTERVAL = 70
 
-/** The delay of the first card, in milliseconds. The hero cascade runs first. */
-export const CARD_DELAY = 300
-
-/** The gap between two card entrances, in milliseconds. */
-export const CARD_STEP = 80
+/**
+ * The gap between two bars of the inertia preview, in milliseconds.
+ *
+ * The cards no longer carry an entrance delay. They reveal on scroll instead —
+ * see `lib/use-reveal.ts` — because a delay counted from page load finished
+ * off-screen for every card below the fold.
+ */
+export const PREVIEW_INTERVAL = 110
 
 /**
  * Marks an element that the static export bakes at a pre-animation value —
@@ -80,5 +95,7 @@ declare module '@rootnative/inertia' {
     lift: TransitionConfig
     pill: TransitionConfig
     float: TransitionConfig
+    hover: TransitionConfig
+    bob: TransitionConfig
   }
 }

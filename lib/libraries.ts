@@ -2,6 +2,9 @@ import { MARK_GAME_ENGINE, MARK_IMPULSE, MARK_INERTIA, MARK_UI } from './brand-m
 
 export type LibraryStatus = 'in the lab' | 'experimental' | 'alpha' | 'beta' | 'stable'
 
+/** Which live preview a featured card shows in its media region. */
+export type PreviewKind = 'motion' | 'components'
+
 export interface Library {
   name: string
   /** Material icon, used only when the library has no brand mark of its own. */
@@ -20,6 +23,18 @@ export interface Library {
   meta?: string
   githubUrl: string
   demoUrl?: string
+  /**
+   * A featured library takes a wide cell and a live preview; the rest take a
+   * narrow one. The grid shows what is ready to use, which five identical
+   * cards hid. Only a featured library may carry a `preview`.
+   */
+  featured?: boolean
+  /**
+   * The live demo in the card's media region. Each preview runs the library
+   * the card is about instead of describing it, so the card is the first
+   * demo a visitor sees. See [components/card-preview.tsx](../components/card-preview.tsx).
+   */
+  preview?: PreviewKind
 }
 
 /**
@@ -48,24 +63,28 @@ export const LIBRARIES: Library[] = [
     icon: 'checkbox-multiple-blank-outline',
     mark: MARK_UI,
     description:
-      'Easy-to-customise, easy-to-use UI elements for React Native & Expo — themeable by design.',
+      'Material Design 3 components that take any design system. Swap the theme, keep the API.',
     status: 'alpha',
     npmPackage: '@rootnative/components',
     meta: 'TypeScript · docs & examples available',
     githubUrl: 'https://github.com/rootnative/ui',
     demoUrl: 'https://rootnative.github.io/ui/',
+    featured: true,
+    preview: 'components',
   },
   {
     name: 'inertia',
     icon: 'animation-outline',
     mark: MARK_INERTIA,
     description:
-      'A friendly wrapper around Reanimated that makes complex animations feel effortless.',
+      'Animations as props. No shared values, no worklets, no useAnimatedStyle to write.',
     status: 'alpha',
     npmPackage: '@rootnative/inertia',
-    meta: 'powered by react-native-reanimated',
+    meta: 'built on react-native-reanimated',
     githubUrl: 'https://github.com/rootnative/inertia',
     demoUrl: 'https://rootnative.github.io/inertia/',
+    featured: true,
+    preview: 'motion',
   },
   {
     name: 'impulse',
@@ -81,8 +100,7 @@ export const LIBRARIES: Library[] = [
     name: 'game-engine',
     icon: 'gamepad-variant-outline',
     mark: MARK_GAME_ENGINE,
-    description:
-      'A lightweight game engine for React Native — build playful, interactive experiences with familiar tools.',
+    description: 'A 2D and 3D engine that runs inside Expo Go. No custom native build, no eject.',
     status: 'experimental',
     meta: 'TypeScript',
     githubUrl: 'https://github.com/rootnative/game-engine',
@@ -90,8 +108,7 @@ export const LIBRARIES: Library[] = [
   {
     name: "what's next",
     icon: 'flask-outline',
-    description:
-      'More building blocks are brewing — small, focused libraries designed to work great together.',
+    description: 'More small libraries are on the way, each one built to work with the rest.',
     status: 'in the lab',
     meta: 'watch the org to be first to know',
     githubUrl: 'https://github.com/orgs/rootnative/repositories',
