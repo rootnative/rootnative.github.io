@@ -7,10 +7,11 @@ import { Linking, StyleSheet, Text } from 'react-native'
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
 import { Rise } from '../components/rise'
+import { ScrollAway } from '../components/scroll-away'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
-import { useReveal, useRevealSource, useSelfMeasuredTop } from '../lib/use-reveal'
+import { useReveal, useRevealSource, useScrollAway, useSelfMeasuredTop } from '../lib/use-reveal'
 import { useHydrated } from '../lib/use-hydrated'
 
 /**
@@ -23,6 +24,23 @@ const GRID_COLUMNS = 12
 
 /** How far the footer travels on its way in, in points. */
 const FOOTER_TRAVEL = 20
+
+/**
+ * How far each hero layer drifts up as the page scrolls past it, in points.
+ *
+ * The four differ on purpose. A layer that drifts further leaves sooner, so
+ * the block separates as it goes instead of sliding away as one slab — that
+ * separation is the depth cue. The order runs top to bottom, and the amounts
+ * fall, so the badge leads and the tagline trails.
+ *
+ * The chips and the buttons take no drift at all. They are the hero's only
+ * interactive rows, and a faded-but-still-clickable button is a worse trade
+ * than a row that simply scrolls.
+ */
+const HERO_DRIFT = { badge: 88, mark: 68, title: 48, tagline: 32 }
+
+/** What the hero mark shrinks to as it leaves. */
+const HERO_MARK_SCALE = 0.86
 
 export default function HomeScreen() {
   const theme = useTheme()
@@ -46,6 +64,10 @@ export default function HomeScreen() {
   const { scrollY, onScroll } = useScroll()
   const { source, onGridLayout, onCellLayout, onViewportLayout, onContentSizeChange } =
     useRevealSource(scrollY)
+
+  // The hero leaves at its own rate rather than riding the scroll. It is the
+  // first block on the page, so its own height is the whole travel.
+  const { onLayout: onHeroLayout, progress: heroProgress } = useScrollAway(source)
 
   // The footer is a direct child of the page column, and the page column is
   // the scroll content's first child, so the footer measures its own absolute
@@ -80,60 +102,78 @@ export default function HomeScreen() {
               for the scroll that brings it into view. `Stagger` gives each
               direct child its own delay, and `Column` passes its children
               straight through, so the `gap` still applies. */}
-          <Column align="center" gap="lg" style={styles.hero}>
+          <Column align="center" gap="lg" style={styles.hero} onLayout={onHeroLayout}>
             <Stagger interval={STAGGER_INTERVAL}>
               <Rise>
-                <Box
-                  px="md"
-                  py="xs"
-                  style={[
-                    styles.badge,
-                    {
-                      borderColor: theme.colors.outlineVariant,
-                      backgroundColor: theme.colors.surfaceContainerLow,
-                    },
-                  ]}
-                >
-                  <Typography
-                    variant="labelSmall"
-                    style={[styles.badgeLabel, { color: theme.colors.onSurfaceVariant }]}
+                <ScrollAway progress={heroProgress} drift={HERO_DRIFT.badge}>
+                  <Box
+                    px="md"
+                    py="xs"
+                    style={[
+                      styles.badge,
+                      {
+                        borderColor: theme.colors.outlineVariant,
+                        backgroundColor: theme.colors.surfaceContainerLow,
+                      },
+                    ]}
                   >
-                    OPEN SOURCE · REACT NATIVE TOOLKIT
-                  </Typography>
-                </Box>
+                    <Typography
+                      variant="labelSmall"
+                      style={[styles.badgeLabel, { color: theme.colors.onSurfaceVariant }]}
+                    >
+                      OPEN SOURCE · REACT NATIVE TOOLKIT
+                    </Typography>
+                  </Box>
+                </ScrollAway>
               </Rise>
 
               <Rise>
-                {/* The mark drifts for as long as the page is open. The outer
-                    `Rise` owns the entrance, so the two never share a key. */}
-                <Motion.View
-                  dataSet={ENTRANCE_MARKER}
-                  initial={{ translateY: -8 }}
-                  animate={{ translateY: 0 }}
-                  transition="float"
+                {/* Three layers, three owners, and none of them shares a
+                    `transform` with another: `Rise` owns the way in,
+                    `ScrollAway` owns the way out, and the inner view owns the
+                    idle drift that runs for as long as the page is open. */}
+                <ScrollAway
+                  progress={heroProgress}
+                  drift={HERO_DRIFT.mark}
+                  scaleTo={HERO_MARK_SCALE}
                 >
-                  {/* The organisation's own mark, read from its GitHub org
-                      avatar. It is an opaque square, so unlike every library
-                      mark it takes a radius — see `BrandMark`. */}
-                  <BrandMark uri={MARK_ORG} size={72} radius={18} label="rootnative logo" />
-                </Motion.View>
+                  <Motion.View
+                    dataSet={ENTRANCE_MARKER}
+                    initial={{ translateY: -8 }}
+                    animate={{ translateY: 0 }}
+                    transition="float"
+                  >
+                    {/* The organisation's own mark, read from its GitHub org
+                        avatar. It is an opaque square, so unlike every library
+                        mark it takes a radius — see `BrandMark`. */}
+                    <BrandMark uri={MARK_ORG} size={72} radius={18} label="rootnative logo" />
+                  </Motion.View>
+                </ScrollAway>
               </Rise>
 
               <Rise style={styles.stretch}>
-                <Typography variant={titleVariant} style={styles.title}>
-                  <Text style={{ color: theme.colors.primary }}>root</Text>
-                  <Text style={{ color: theme.colors.onBackground }}>native</Text>
-                </Typography>
+                <ScrollAway progress={heroProgress} drift={HERO_DRIFT.title} style={styles.stretch}>
+                  <Typography variant={titleVariant} style={styles.title}>
+                    <Text style={{ color: theme.colors.primary }}>root</Text>
+                    <Text style={{ color: theme.colors.onBackground }}>native</Text>
+                  </Typography>
+                </ScrollAway>
               </Rise>
 
               <Rise style={styles.stretch}>
-                <Typography
-                  variant="bodyLarge"
-                  style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}
+                <ScrollAway
+                  progress={heroProgress}
+                  drift={HERO_DRIFT.tagline}
+                  style={styles.stretch}
                 >
-                  Animation, UI, gestures, and games — four small libraries you can adopt one at a
-                  time.
-                </Typography>
+                  <Typography
+                    variant="bodyLarge"
+                    style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}
+                  >
+                    Animation, UI, gestures, and games — four small libraries you can adopt one at a
+                    time.
+                  </Typography>
+                </ScrollAway>
               </Rise>
 
               <Rise style={styles.stretch}>

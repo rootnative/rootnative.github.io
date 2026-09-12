@@ -10,6 +10,7 @@ import {
   useShadow,
   useTransform,
 } from '@rootnative/inertia'
+import { useMemo } from 'react'
 import { Linking, StyleSheet } from 'react-native'
 
 import { statusFromVersion, type Library } from '../lib/libraries'
@@ -25,18 +26,32 @@ const REVEAL_TRAVEL = 28
 /** Height of a card's live preview region, in points. */
 const PREVIEW_HEIGHT = 128
 
-/** The resting and hovered shadow of a card. */
-const SHADOW_REST = {
-  shadowOpacity: 0,
-  shadowRadius: 0,
-  shadowOffset: { width: 0, height: 0 },
-  elevation: 0,
+/** `#rrggbb` and an alpha, as the `rgba()` string `useShadow` interpolates. */
+function withAlpha(hex: string, alpha: number) {
+  const value = parseInt(hex.slice(1), 16)
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`
 }
-const SHADOW_HOVER = {
-  shadowOpacity: 0.18,
-  shadowRadius: 20,
-  shadowOffset: { width: 0, height: 12 },
-  elevation: 8,
+
+/**
+ * The resting and hovered shadow of a card.
+ *
+ * Both ends carry `boxShadow`, not the classic `shadow*` keys. react-native-web
+ * 0.21 deprecated those keys, and Reanimated does not turn their animated
+ * values into CSS, so the hovered shadow stayed fully transparent on web — the
+ * one renderer this site ships. `elevation` stays for Android, which reads it
+ * directly and takes no part in the web deprecation.
+ */
+function shadowPair(shadowColor: string) {
+  return {
+    rest: {
+      boxShadow: [{ offsetX: 0, offsetY: 0, blurRadius: 0, color: withAlpha(shadowColor, 0) }],
+      elevation: 0,
+    },
+    hover: {
+      boxShadow: [{ offsetX: 0, offsetY: 12, blurRadius: 20, color: withAlpha(shadowColor, 0.18) }],
+      elevation: 8,
+    },
+  }
 }
 
 interface LibraryCardProps extends Library {
@@ -97,7 +112,8 @@ export function LibraryCard({
     return Math.max(hovered.value, focused.value)
   })
   const liftStyle = useInterpolatedStyle(active, { translateY: [0, -6], scale: [1, 1.012] })
-  const shadowStyle = useShadow({ from: SHADOW_REST, to: SHADOW_HOVER, progress: active })
+  const shadow = useMemo(() => shadowPair(theme.colors.shadow), [theme.colors.shadow])
+  const shadowStyle = useShadow({ from: shadow.rest, to: shadow.hover, progress: active })
   const borderStyle = useColorTransition(
     active,
     [theme.colors.outlineVariant, theme.colors.primary],
@@ -123,7 +139,7 @@ export function LibraryCard({
         onPointerLeave={handlers.onHoverOut}
         onFocus={handlers.onFocus}
         onBlur={handlers.onBlur}
-        style={[styles.fill, { shadowColor: theme.colors.shadow }, liftStyle, shadowStyle]}
+        style={[styles.fill, liftStyle, shadowStyle]}
       >
         <Card variant="outlined" style={[styles.card, borderStyle]}>
           {preview ? (
