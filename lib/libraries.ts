@@ -92,9 +92,11 @@ export const LIBRARIES: Library[] = [
     mark: MARK_IMPULSE,
     description:
       'Declarative gesture primitives — a gesture is written as an intent, not assembled from a builder chain.',
-    status: 'in the lab',
-    meta: 'powered by react-native-gesture-handler',
+    status: 'alpha',
+    npmPackage: '@rootnative/impulse',
+    meta: 'useTap, useDoubleTap, useLongPress, useDrag · powered by react-native-gesture-handler',
     githubUrl: 'https://github.com/rootnative/impulse',
+    demoUrl: 'https://rootnative.github.io/impulse/',
   },
   {
     name: 'game-engine',

@@ -171,7 +171,12 @@ export function LibraryCard({
             </Card.Media>
           ) : null}
           <Column p="lg" gap="md" flex={1}>
-            <Row align="center" gap="md">
+            {/* `wrap` because a narrow card has to fit a long name beside two
+                pills. `impulse` is the case that needs it: the name plus
+                `alpha` plus `v0.0.0-alpha.0` overruns a third-width cell, and
+                the card clips its own overflow, so without this the version
+                pill is cut in half at the card edge. */}
+            <Row align="center" gap="md" wrap>
               {mark ? (
                 // A brand mark carries its own colours, so it gets no themed
                 // container behind it — a tint would fight the mark's palette.
