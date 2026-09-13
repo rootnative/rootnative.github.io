@@ -2,7 +2,7 @@ import { Motion } from '@rootnative/inertia'
 import type { PropsWithChildren } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 
-import { ENTRANCE, ENTRANCE_MARKER } from '../lib/motion'
+import { ENTRANCE } from '../lib/motion'
 
 interface RiseProps {
   /**
@@ -17,7 +17,6 @@ interface RiseProps {
 export function Rise({ delay, style, children }: PropsWithChildren<RiseProps>) {
   return (
     <Motion.View
-      dataSet={ENTRANCE_MARKER}
       initial={{ opacity: 0, translateY: 14 }}
       animate={{ opacity: 1, translateY: 0 }}
       transition={delay === undefined ? 'entrance' : { ...ENTRANCE, delay }}

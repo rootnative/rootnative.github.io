@@ -1,3 +1,4 @@
+import { entranceGuardCss, entranceGuardNoscriptCss } from '@rootnative/inertia/static-export'
 import { ScrollViewStyleReset } from 'expo-router/html'
 import type { PropsWithChildren } from 'react'
 
@@ -14,8 +15,9 @@ const DARK_BACKGROUND = '#0e141c'
  * never runs, the animation fallback reveals the content after 4s.
  *
  * The page also animates itself in with @rootnative/inertia, so the export
- * bakes `opacity: 0` into every element that waits for an entrance. Those
- * carry `data-entrance` (see lib/motion.ts) and get the same 4s fallback.
+ * bakes `opacity: 0` into every element that waits for an entrance. The
+ * library's own guard covers those — see `entranceGuardCss` below. This block
+ * covers the theme only.
  */
 const themeGuardCss = `
 :root {
@@ -34,23 +36,15 @@ const themeGuardCss = `
     to { visibility: visible; }
   }
 }
-@keyframes entrance-guard-timeout {
-  to { opacity: 1; transform: none; }
-}
-body:not(.theme-ready) [data-entrance] {
-  animation: entrance-guard-timeout 0s 4s forwards;
-}
 `
 
 /**
- * No script at all, so nothing will ever animate. Reveal the page at once
- * instead of holding the visitor for the 4s fallback. A rule in a stylesheet
- * needs `!important` here, because the export writes each resting value into
- * the `style` attribute of the element itself.
+ * No script at all, so the client never adds `theme-ready`. Reveal the page at
+ * once instead of holding the visitor for the 4s fallback.
+ * `entranceGuardNoscriptCss` does the same for the entrance values.
  */
 const noscriptCss = `
 body { visibility: visible !important; }
-[data-entrance] { opacity: 1 !important; transform: none !important; }
 `
 
 export default function Root({ children }: PropsWithChildren) {
@@ -62,8 +56,10 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: themeGuardCss }} />
+        <style dangerouslySetInnerHTML={{ __html: entranceGuardCss() }} />
         <noscript>
           <style dangerouslySetInnerHTML={{ __html: noscriptCss }} />
+          <style dangerouslySetInnerHTML={{ __html: entranceGuardNoscriptCss }} />
         </noscript>
       </head>
       <body>{children}</body>

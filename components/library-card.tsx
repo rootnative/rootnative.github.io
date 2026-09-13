@@ -4,18 +4,19 @@ import { useTheme } from '@rootnative/core'
 import {
   Motion,
   Presence,
+  type ShadowConfig,
   useColorTransition,
   useGesture,
   useInterpolatedStyle,
+  useInView,
   useShadow,
   useTransform,
 } from '@rootnative/inertia'
-import { useMemo } from 'react'
-import { Linking, StyleSheet } from 'react-native'
+import { useMemo, useRef } from 'react'
+import { Linking, Platform, StyleSheet, type View } from 'react-native'
 
 import { statusFromVersion, type Library } from '../lib/libraries'
-import { ENTRANCE_MARKER } from '../lib/motion'
-import { useCardTop, useReveal, type RevealSource } from '../lib/use-reveal'
+import { ENTRANCE_MARKER, IN_VIEW } from '../lib/motion'
 import { useNpmVersion } from '../lib/use-npm-version'
 import { BrandMark } from './brand-mark'
 import { CardPreview } from './card-preview'
@@ -33,33 +34,58 @@ function withAlpha(hex: string, alpha: number) {
 }
 
 /**
- * The resting and hovered shadow of a card.
+ * The resting and hovered shadow of a card, one surface per platform.
  *
- * Both ends carry `boxShadow`, not the classic `shadow*` keys. react-native-web
- * 0.21 deprecated those keys, and Reanimated does not turn their animated
- * values into CSS, so the hovered shadow stayed fully transparent on web — the
- * one renderer this site ships. `elevation` stays for Android, which reads it
- * directly and takes no part in the web deprecation.
+ * Web takes `boxShadow`, not the classic `shadow*` keys. react-native-web 0.21
+ * deprecated those keys, and Reanimated does not turn their animated values into
+ * CSS, so the hovered shadow stayed fully transparent on the one renderer this
+ * site deploys.
+ *
+ * Native takes the `shadow*` keys and `elevation`. **The two surfaces must not
+ * meet on one config.** React Native 0.76 and later on the new architecture —
+ * the default on the 0.86 pinned here — renders `boxShadow` natively as well, so
+ * a config that carries both paints two shadows on one view, and whichever the
+ * view resolves last wins. `@rootnative/components` `0.0.0-alpha.16` documents
+ * this and exports `elevationShadowConfig`, which makes the same split from a
+ * `theme.elevation.level*` token. This card keeps its own values, because the
+ * hover lift is taller and softer than any one token level.
+ *
+ * The native blur is half the web one: `blurRadius` is a CSS blur diameter and
+ * `shadowRadius` is the standard deviation behind it.
  */
-function shadowPair(shadowColor: string) {
+function shadowPair(shadowColor: string): { rest: ShadowConfig; hover: ShadowConfig } {
+  if (Platform.OS === 'web') {
+    return {
+      rest: {
+        boxShadow: [{ offsetX: 0, offsetY: 0, blurRadius: 0, color: withAlpha(shadowColor, 0) }],
+      },
+      hover: {
+        boxShadow: [
+          { offsetX: 0, offsetY: 12, blurRadius: 20, color: withAlpha(shadowColor, 0.18) },
+        ],
+      },
+    }
+  }
+
   return {
     rest: {
-      boxShadow: [{ offsetX: 0, offsetY: 0, blurRadius: 0, color: withAlpha(shadowColor, 0) }],
+      shadowColor,
+      shadowOffset: { width: 0, height: 0 },
+      shadowRadius: 0,
+      shadowOpacity: 0,
       elevation: 0,
     },
     hover: {
-      boxShadow: [{ offsetX: 0, offsetY: 12, blurRadius: 20, color: withAlpha(shadowColor, 0.18) }],
+      shadowColor,
+      shadowOffset: { width: 0, height: 12 },
+      shadowRadius: 10,
+      shadowOpacity: 0.18,
       elevation: 8,
     },
   }
 }
 
-interface LibraryCardProps extends Library {
-  /** Position in `LIBRARIES`. Identifies this card's cell to the reveal. */
-  index: number
-  /** The page's scroll measurements. `app/index.tsx` owns them. */
-  reveal: RevealSource
-}
+type LibraryCardProps = Library
 
 export function LibraryCard({
   name,
@@ -73,20 +99,19 @@ export function LibraryCard({
   demoUrl,
   featured,
   preview,
-  index,
-  reveal,
 }: LibraryCardProps) {
   const theme = useTheme()
   const { version, ready } = useNpmVersion(npmPackage)
   // Derive status from the published version, falling back to the static one.
   const status = npmPackage ? statusFromVersion(version) : fallbackStatus
 
-  // The entrance. It runs off scroll position, not off a delay counted from
-  // page load, so a card below the fold still enters where the visitor sees
-  // it. `lib/use-reveal.ts` explains why this is hand-built.
-  const top = useCardTop(reveal, index)
-  const progress = useReveal(reveal, top)
-  const revealStyle = useInterpolatedStyle(progress, {
+  // The entrance. It starts when the card arrives on screen, not on a delay
+  // counted from page load, so a card below the fold still enters where the
+  // visitor sees it. The card holds its own ref and answers for itself —
+  // `useInView` needs nothing from the page.
+  const cardRef = useRef<View>(null)
+  const inView = useInView(cardRef, IN_VIEW)
+  const revealStyle = useInterpolatedStyle(inView, {
     opacity: [0, 1],
     translateY: [REVEAL_TRAVEL, 0],
   })
@@ -95,15 +120,15 @@ export function LibraryCard({
   // the `gesture` prop animates only the element that carries it, and the
   // lift, the shadow, the border, and the mark are four different elements.
   //
-  // The handler bag is `Pressable` shaped, but the handlers are plain
-  // callbacks, so a `View`'s pointer events can raise the same layers. That
-  // matters: a `Pressable` wrapper renders `tabindex="0"` and a pointer
-  // cursor even with `focusable={false}` and `accessible={false}`, which put
-  // five dead keyboard stops on the page for a surface that has no action.
-  // `onPointerEnter` / `onPointerLeave` are `ViewProps` from React Native
-  // 0.71 up, and react-native-web maps them to the DOM events of the same
-  // name. They no-op on native, exactly as `hovered` does.
-  const { hovered, focused, handlers } = useGesture('hover')
+  // `pointerHandlers` is the bag keyed for a plain `View`
+  // (`onPointerEnter` / `onPointerLeave` / `onFocus` / `onBlur`), which is what
+  // this surface is: a card with no action of its own. The `Pressable` bag
+  // would cost five dead keyboard stops — react-native-web renders
+  // `tabindex="0"` on a `Pressable` even with `focusable={false}` and
+  // `accessible={false}`. Both bags hold the same callbacks by reference, so
+  // they cannot drift apart. New in inertia 0.0.12; this was four hand-mapped
+  // props before.
+  const { hovered, focused, pointerHandlers } = useGesture('hover')
   // Focus counts as well as hover, so a visitor who tabs to a button inside
   // the card gets the same highlight a pointer gets. DOM focus bubbles, so
   // the wrapper sees a child's focus without being focusable itself.
@@ -133,14 +158,12 @@ export function LibraryCard({
   return (
     // The entrance is the outer layer and the hover is the inner one, so a
     // pointer that arrives mid-entrance does not fight it for `translateY`.
-    <Motion.View dataSet={ENTRANCE_MARKER} style={[styles.fill, revealStyle]}>
-      <Motion.View
-        onPointerEnter={handlers.onHoverIn}
-        onPointerLeave={handlers.onHoverOut}
-        onFocus={handlers.onFocus}
-        onBlur={handlers.onBlur}
-        style={[styles.fill, liftStyle, shadowStyle]}
-      >
+    //
+    // No `initial` on the outer view — the card starts hidden because its
+    // in-view value starts at 0, which the library cannot see. It carries the
+    // marker by hand. See `ENTRANCE_MARKER`.
+    <Motion.View ref={cardRef} dataSet={ENTRANCE_MARKER} style={[styles.fill, revealStyle]}>
+      <Motion.View {...pointerHandlers} style={[styles.fill, liftStyle, shadowStyle]}>
         <Card variant="outlined" style={[styles.card, borderStyle]}>
           {preview ? (
             <Card.Media height={PREVIEW_HEIGHT}>
@@ -178,7 +201,6 @@ export function LibraryCard({
                   {ready ? (
                     <Motion.View
                       key="status"
-                      dataSet={ENTRANCE_MARKER}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
@@ -198,7 +220,6 @@ export function LibraryCard({
                   {ready && version ? (
                     <Motion.View
                       key="version"
-                      dataSet={ENTRANCE_MARKER}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}

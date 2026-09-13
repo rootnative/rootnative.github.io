@@ -1,8 +1,9 @@
 import { Box, Button, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
 import { useBreakpointValue, useTheme } from '@rootnative/core'
-import { Motion, Stagger, useInterpolatedStyle, useScroll } from '@rootnative/inertia'
+import { Motion, Stagger, useInterpolatedStyle, useInView, useScroll } from '@rootnative/inertia'
 import Head from 'expo-router/head'
-import { Linking, StyleSheet, Text } from 'react-native'
+import { useRef } from 'react'
+import { Linking, StyleSheet, Text, type View } from 'react-native'
 
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
@@ -10,9 +11,8 @@ import { Rise } from '../components/rise'
 import { ScrollAway } from '../components/scroll-away'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
-import { ENTRANCE_MARKER, STAGGER_INTERVAL } from '../lib/motion'
-import { useReveal, useRevealSource, useScrollAway, useSelfMeasuredTop } from '../lib/use-reveal'
-import { useHydrated } from '../lib/use-hydrated'
+import { ENTRANCE_MARKER, IN_VIEW, STAGGER_INTERVAL } from '../lib/motion'
+import { useScrollAway } from '../lib/use-scroll-away'
 
 /**
  * The card grid is 12 columns wide, and a card takes a span rather than a
@@ -44,37 +44,30 @@ const HERO_MARK_SCALE = 0.86
 
 export default function HomeScreen() {
   const theme = useTheme()
-  const hydrated = useHydrated()
-  const breakpointTitleVariant = useBreakpointValue({
+  // Rule 2 of the static-export rules. `useBreakpointValue` is hydration-safe
+  // from core 0.0.0-alpha.16: it returns the `compact` entry for as long as the
+  // client reproduces the server's markup, then the measured one on the
+  // re-render React schedules after hydration. This page carried a gate of its
+  // own for that until the upgrade.
+  const titleVariant = useBreakpointValue({
     compact: 'displayMedium',
     medium: 'displayLarge',
   } as const)
-  const breakpointFeaturedSpan = useBreakpointValue({ compact: 12, expanded: 6 })
-  const breakpointCompactSpan = useBreakpointValue({ compact: 12, medium: 6, expanded: 4 })
-  // Rule 2 of the static-export rules: the export server renders at width 0,
-  // so every breakpoint value has to start at its compact variant and change
-  // only once the client has mounted.
-  const titleVariant = hydrated ? breakpointTitleVariant : 'displayMedium'
-  const featuredSpan = hydrated ? breakpointFeaturedSpan : 12
-  const compactSpan = hydrated ? breakpointCompactSpan : 12
+  const featuredSpan = useBreakpointValue({ compact: 12, expanded: 6 })
+  const compactSpan = useBreakpointValue({ compact: 12, medium: 6, expanded: 4 })
 
-  // The page scrolls its own entrance. `useScroll` puts the offset on the UI
-  // thread, and `useRevealSource` collects the three measurements the trigger
-  // needs: the grid's position, each cell's position, and the viewport.
+  // The hero leaves at its own rate rather than riding the scroll, so it needs
+  // the scroll position itself. Every block below it answers a yes-or-no —
+  // "am I on screen?" — which each one reads for itself through `useInView`.
+  // `useScroll` and `useInView` drive the same `Motion.ScrollView`: the hook
+  // reads the container's offset off its ref, so the `onScroll` prop stays
+  // free for this one.
   const { scrollY, onScroll } = useScroll()
-  const { source, onGridLayout, onCellLayout, onViewportLayout, onContentSizeChange } =
-    useRevealSource(scrollY)
+  const { onLayout: onHeroLayout, progress: heroProgress } = useScrollAway(scrollY)
 
-  // The hero leaves at its own rate rather than riding the scroll. It is the
-  // first block on the page, so its own height is the whole travel.
-  const { onLayout: onHeroLayout, progress: heroProgress } = useScrollAway(source)
-
-  // The footer is a direct child of the page column, and the page column is
-  // the scroll content's first child, so the footer measures its own absolute
-  // position in one step — no grid chain to walk.
-  const { top: footerTop, onLayout: onFooterLayout } = useSelfMeasuredTop()
-  const footerProgress = useReveal(source, footerTop)
-  const footerStyle = useInterpolatedStyle(footerProgress, {
+  const footerRef = useRef<View>(null)
+  const footerInView = useInView(footerRef, IN_VIEW)
+  const footerStyle = useInterpolatedStyle(footerInView, {
     opacity: [0, 1],
     translateY: [FOOTER_TRAVEL, 0],
   })
@@ -93,8 +86,6 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scroll}
         onScroll={onScroll}
         scrollEventThrottle={16}
-        onLayout={onViewportLayout}
-        onContentSizeChange={onContentSizeChange}
       >
         <Column gap="xl" px="lg" style={styles.page}>
           {/* The hero is the one block that cascades on load, because it is
@@ -138,7 +129,6 @@ export default function HomeScreen() {
                   scaleTo={HERO_MARK_SCALE}
                 >
                   <Motion.View
-                    dataSet={ENTRANCE_MARKER}
                     initial={{ translateY: -8 }}
                     animate={{ translateY: 0 }}
                     transition="float"
@@ -205,25 +195,20 @@ export default function HomeScreen() {
             </Stagger>
           </Column>
 
-          {/* Each `Grid.Cell` reports its own position, and the grid reports
-              its own, because a cell has to be a direct child of the grid —
-              `Grid.Cell` dev-errors otherwise, so a card cannot render its
-              own cell. The two sum to the card's absolute position. */}
-          <Grid columns={GRID_COLUMNS} gap="md" onLayout={onGridLayout}>
-            {LIBRARIES.map((library, index) => (
-              <Grid.Cell
-                key={library.name}
-                span={library.featured ? featuredSpan : compactSpan}
-                onLayout={(event) => onCellLayout(index, event)}
-              >
-                <LibraryCard index={index} reveal={source} {...library} />
+          <Grid columns={GRID_COLUMNS} gap="md">
+            {LIBRARIES.map((library) => (
+              <Grid.Cell key={library.name} span={library.featured ? featuredSpan : compactSpan}>
+                <LibraryCard {...library} />
               </Grid.Cell>
             ))}
           </Grid>
 
+          {/* No `initial` here — the footer starts hidden because its in-view
+              value starts at 0, which the library cannot see. It carries the
+              marker by hand. See `ENTRANCE_MARKER`. */}
           <Motion.View
+            ref={footerRef}
             dataSet={ENTRANCE_MARKER}
-            onLayout={onFooterLayout}
             style={[styles.stretch, footerStyle]}
           >
             <Column align="center" gap="md" style={styles.footer}>

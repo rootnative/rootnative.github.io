@@ -4,6 +4,7 @@ import {
   type TimingTransition,
   type TransitionConfig,
 } from '@rootnative/inertia'
+import { ENTRANCE_ATTRIBUTE } from '@rootnative/inertia/static-export'
 
 /**
  * The motion vocabulary of the site. `app/_layout.tsx` registers it on a
@@ -72,21 +73,43 @@ export const STAGGER_INTERVAL = 70
 /**
  * The gap between two bars of the inertia preview, in milliseconds.
  *
- * The cards no longer carry an entrance delay. They reveal on scroll instead —
- * see `lib/use-reveal.ts` — because a delay counted from page load finished
- * off-screen for every card below the fold.
+ * The cards no longer carry an entrance delay. Each one enters when it comes
+ * into view instead — see `IN_VIEW` below — because a delay counted from page
+ * load finished off-screen for every card below the fold.
  */
 export const PREVIEW_INTERVAL = 110
 
 /**
- * Marks an element that the static export bakes at a pre-animation value —
- * `opacity: 0`, an offset, or both. Put it on every such element with the
- * `dataSet` prop, which react-native-web writes out as `data-entrance`.
+ * The in-view trigger of every block below the hero, in one place so the cards
+ * and the footer enter alike.
  *
- * `app/+html.tsx` reveals all of them when the bundle never runs. Keep the
- * attribute name there in agreement with this one.
+ * `amount` waits for a sixth of the block rather than firing on its first
+ * pixel — a card that starts the moment its top edge appears has finished
+ * before the visitor can read it. `transition` is the page's own entrance
+ * curve, so a block that scrolls into view and a hero block that cascades on
+ * load move the same way. `once` stays at its default: an entrance that
+ * replays on every scroll past reads as flicker.
  */
-export const ENTRANCE_MARKER: Record<string, string> = { entrance: 'true' }
+export const IN_VIEW = { amount: 1 / 6, transition: 'entrance' } as const
+
+/**
+ * Marks an element that the static export bakes at a pre-animation value, for
+ * the case the library cannot see.
+ *
+ * From inertia 0.0.12 a `Motion.*` writes this attribute itself whenever it
+ * carries an `initial`, so an element with an `initial` needs nothing. An
+ * element hidden by an **animated style** instead — the cards and the footer,
+ * which start at `opacity: 0` because their `useInView` value starts at `0` —
+ * has no `initial`, so the library has no signal to mark it. Put this on
+ * those, with the `dataSet` prop.
+ *
+ * `entranceGuardCss()` in `app/+html.tsx` reveals every marked element when the
+ * bundle never runs, whichever side wrote the attribute. The key is derived
+ * from the library's own constant, so the two cannot drift apart.
+ */
+export const ENTRANCE_MARKER: Record<string, string> = {
+  [ENTRANCE_ATTRIBUTE.replace(/^data-/, '')]: 'true',
+}
 
 /** Narrows `transition="…"` to the names above, and makes a typo an error. */
 declare module '@rootnative/inertia' {
