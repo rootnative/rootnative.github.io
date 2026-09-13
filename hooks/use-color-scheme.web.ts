@@ -10,6 +10,11 @@ export function useColorScheme() {
   const [hasHydrated, setHasHydrated] = useState(false)
 
   useEffect(() => {
+    // The one legitimate setState-in-effect: flipping off a server-rendered
+    // value after mount. The static export bakes the light theme, so the first
+    // client render has to match it or React keeps the server's DOM. This
+    // commit is the signal that hydration is done. See CLAUDE.md, rule 1.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasHydrated(true)
   }, [])
 

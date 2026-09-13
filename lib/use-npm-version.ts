@@ -25,6 +25,11 @@ export function useNpmVersion(npmPackage?: string): NpmVersion {
   })
 
   useEffect(() => {
+    // The `useState` initialiser covers the first mount. These two writes exist
+    // for a LATER `npmPackage` change, where the answer is already known and no
+    // request is made — so the card must not be left on the previous package's
+    // pills. Neither write cascades: both are terminal.
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (!npmPackage) {
       setState({ version: undefined, ready: true })
       return
@@ -36,6 +41,7 @@ export function useNpmVersion(npmPackage?: string): NpmVersion {
 
     let cancelled = false
     setState({ version: undefined, ready: false })
+    /* eslint-enable react-hooks/set-state-in-effect */
     const url = `https://registry.npmjs.org/${npmPackage}/latest`
 
     fetch(url)

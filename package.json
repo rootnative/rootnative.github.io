@@ -8,6 +8,13 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "export:web": "expo export --platform web",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "yarn lint && yarn typecheck && yarn format:check",
     "build:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
@@ -36,6 +43,12 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.0",
+    "eslint": "^9",
+    "eslint-config-expo": "^57.0.2",
+    "eslint-config-prettier": "^10",
+    "eslint-plugin-react-native": "^5",
+    "globals": "^16",
+    "prettier": "^3",
     "typescript": "~6.0.3"
   }
 }

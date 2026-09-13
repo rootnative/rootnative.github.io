@@ -1,0 +1,74 @@
+name: CI
+
+# Every action is pinned to a commit SHA, with its tag in the trailing comment.
+# A tag can be moved; a SHA cannot, so a compromised action cannot reach this
+# workflow through a re-pointed tag. `inertia` and `sdk-compat` pin the same
+# way. Bump with the tag comment and the SHA together, never one alone.
+#
+# Nothing checked this repository before a merge: deploy-web.yml runs only on a
+# push to `main`, so a broken typecheck or a failed export was found after the
+# fact, on the job that publishes the site. This runs the same checks on the
+# pull request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# The token only needs to read the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      # Not `yarn verify`: run the three separately so the log says which one
+      # failed without reading into a combined step.
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Format check
+        run: yarn format:check
+
+  export:
+    name: Static export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      # The web export is the only artifact this repository ships, and it can
+      # break on things a typecheck does not see — a bad `app.json`, a module
+      # that has no web build, a pre-render that throws. deploy-web.yml runs the
+      # same command; this makes a pull request fail instead of `main`.
+      - name: Export web
+        run: yarn export:web
+
+      # deploy-web.yml copies this file to dist/404.html, so a rename or a
+      # missing +not-found route breaks the Pages 404 without failing the build.
+      - name: Static export produced the 404 source
+        run: test -f dist/+not-found.html
