@@ -73,6 +73,27 @@ const AVATAR_URL = 'https://avatars.githubusercontent.com/rootnative'
  */
 const SLOT_SIZE = 512
 
+/**
+ * Edge length of the tile embedded in the README hero, and its corner radius.
+ *
+ * The hero draws it at 72 px, so 144 keeps it sharp at 2x -- the same trade
+ * `?size=144` makes for the site in `lib/brand-marks.ts`. The radius is the
+ * site's `radius={18}` at that scale.
+ */
+const HERO_MARK_SIZE = 144
+const HERO_MARK_RADIUS = 36
+
+/**
+ * The block in `assets/hero.svg` this script owns.
+ *
+ * The hero is hand-authored art, and the mark inside it is not: a README cannot
+ * fetch anything at view time, so the one mark it shows has to be bytes on
+ * disk. Keeping those bytes behind a marker makes them DERIVED, like the four
+ * icon slots -- when the org avatar changes, `yarn build:icons` rewrites this
+ * and nobody edits base64 by hand.
+ */
+const HERO_MARK_BLOCK = /(<!-- build:org-mark -->)([\s\S]*?)(<!-- \/build:org-mark -->)/
+
 // --- PNG decode --------------------------------------------------------------
 
 /**
@@ -280,6 +301,46 @@ function tile(size, ground, source, inset) {
   return { width: size, height: size, rgba }
 }
 
+/**
+ * A `size` x `size` tile of the avatar with rounded corners, for the README
+ * hero.
+ *
+ * The site draws the same mark through `BrandMark` with `radius={18}` at 72 px.
+ * A README is a static file and cannot reach a style, so the radius has to be
+ * in the pixels. Without it the avatar is a black box on a light page, which is
+ * the whole reason that prop exists -- see "Brand marks" in CLAUDE.md.
+ *
+ * Coverage is sampled on a 4x4 grid inside each pixel, so a corner is a ramp
+ * rather than a staircase.
+ */
+function roundedTile(size, source, radius) {
+  const art = resample(source, size)
+  const rgba = Buffer.from(art.rgba)
+  const samples = 4
+
+  const inside = (x, y) => {
+    // Distance past the corner's straight run, on each axis.
+    const dx = Math.max(radius - x, x - (size - radius), 0)
+    const dy = Math.max(radius - y, y - (size - radius), 0)
+    return dx * dx + dy * dy <= radius * radius
+  }
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      let covered = 0
+      for (let sy = 0; sy < samples; sy++) {
+        for (let sx = 0; sx < samples; sx++) {
+          if (inside(x + (sx + 0.5) / samples, y + (sy + 0.5) / samples)) covered++
+        }
+      }
+      const at = (y * size + x) * 4 + 3
+      rgba[at] = Math.round((rgba[at] * covered) / (samples * samples))
+    }
+  }
+
+  return { width: size, height: size, rgba }
+}
+
 // --- PNG encode --------------------------------------------------------------
 
 const CRC_TABLE = (() => {
@@ -427,6 +488,25 @@ async function main() {
       `  assets/${file.padEnd(18)} ${size}px  inset ${inset}  ${(png.length / 1024).toFixed(1)} KB`,
     )
   }
+
+  // The hero mark. Same source, same derivation rule, different medium.
+  const heroPng = encodePng(roundedTile(HERO_MARK_SIZE, source, HERO_MARK_RADIUS))
+  const heroPath = path.join(ASSET_DIR, 'hero.svg')
+  const hero = readFileSync(heroPath, 'utf8')
+  if (!HERO_MARK_BLOCK.test(hero)) {
+    throw new Error('assets/hero.svg has no build:org-mark block to write into')
+  }
+  writeFileSync(
+    heroPath,
+    hero.replace(
+      HERO_MARK_BLOCK,
+      `$1\n  <!-- Written by scripts/build-icons.mjs from the org avatar. Do not edit by hand. -->\n` +
+        `  <image x="564" y="99" width="72" height="72" href="data:image/png;base64,${heroPng.toString('base64')}"/>\n  $3`,
+    ),
+  )
+  console.log(
+    `  assets/hero.svg      ${HERO_MARK_SIZE}px  radius ${HERO_MARK_RADIUS}  ${(heroPng.length / 1024).toFixed(1)} KB embedded`,
+  )
 
   // The two background colours in app.json sit behind these icons, and nothing
   // else keeps them in step with the avatar. Flag a mismatch rather than

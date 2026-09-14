@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "yarn lint && yarn typecheck && yarn format:check",
-    "build:icons": "node scripts/build-icons.mjs"
+    "build:icons": "node scripts/build-icons.mjs",
+    "build:cards": "node scripts/build-cards.mjs"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

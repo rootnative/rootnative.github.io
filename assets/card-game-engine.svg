@@ -1,48 +1,27 @@
-<svg width="584" height="220" viewBox="0 0 584 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="game-engine — a lightweight game engine for React Native">
-  <defs>
-    <linearGradient id="icon" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F43F5E"/>
-      <stop offset="100%" stop-color="#F97316"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#F43F5E" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#F43F5E" stop-opacity="0"/>
-    </radialGradient>
-    <clipPath id="frame">
-      <rect width="584" height="220" rx="16"/>
-    </clipPath>
-  </defs>
+<svg width="584" height="240" viewBox="0 0 584 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="game-engine — a 2D and 3D engine that runs inside Expo Go">
+  <rect x="0.5" y="0.5" width="583" height="239" rx="11.5" fill="#0e141c" stroke="#404753"/>
 
-  <g clip-path="url(#frame)">
-    <rect width="584" height="220" fill="#0D1424"/>
-    <ellipse cx="60" cy="0" rx="360" ry="180" fill="url(#glow)"/>
+  <g transform="translate(24 24) scale(0.59375)">
+<g>
+    <path d="M 32 5 L 6 30 L 32 37 Z" fill="#d1fae5" />
+    <path d="M 32 5 L 32 37 L 58 30 Z" fill="#6ee7b7" />
+    <path d="M 6 30 L 32 59 L 32 37 Z" fill="#10b981" />
+    <path d="M 32 37 L 32 59 L 58 30 Z" fill="#047857" />
   </g>
-  <rect x="0.5" y="0.5" width="583" height="219" rx="15.5" stroke="#22304C"/>
-
-  <rect x="28" y="28" width="44" height="44" rx="12" fill="url(#icon)"/>
-  <g fill="#FFFFFF">
-    <rect x="40" y="38" width="8" height="4"/>
-    <rect x="52" y="38" width="8" height="4"/>
-    <rect x="36" y="42" width="28" height="8"/>
-    <rect x="40" y="50" width="20" height="4"/>
-    <rect x="44" y="54" width="12" height="4"/>
-    <rect x="48" y="58" width="4" height="4"/>
   </g>
 
-  <text x="88" y="57" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#F8FAFC">game-engine</text>
-  <text x="552" y="56" text-anchor="end" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="19" fill="#4A5B77">↗</text>
+  <text x="78" y="50.92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#dee2ee">game-engine</text>
+  <rect x="465" y="31" width="95" height="24" rx="12" fill="#404753"/>
+  <text x="512.5" y="47" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="0.5" fill="#c0c7d5">experimental</text>
 
-  <text font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15.5" fill="#94A3B8">
-    <tspan x="28" y="108">A lightweight game engine for React Native — build</tspan>
-    <tspan x="28" y="133">playful, interactive experiences with familiar tools.</tspan>
+  <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" letter-spacing="0.25" fill="#c0c7d5">
+    <tspan x="24" y="92">A 2D and 3D engine that runs inside Expo Go. No custom</tspan>
+    <tspan x="24" y="112">native build, no eject.</tspan>
   </text>
 
-  <line x1="28" y1="168" x2="556" y2="168" stroke="#1D2A44"/>
+  <text x="24" y="146" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" letter-spacing="0.5" fill="#c0c7d5">TypeScript</text>
 
-  <g font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#8296AD">
-    <circle cx="34" cy="193" r="4" fill="#F43F5E"/>
-    <text x="46" y="197.5">experimental</text>
-    <text x="140" y="197.5" fill="#44536E">·</text>
-    <text x="152" y="197.5">TypeScript</text>
-  </g>
+  <rect x="24.5" y="176.5" width="105" height="39" rx="19.5" fill="none" stroke="#8a919f"/>
+  <g transform="translate(40 186) scale(0.83333)"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="#a4c9ff"/></g>
+  <text x="68" y="201" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="0.1" fill="#a4c9ff">GitHub</text>
 </svg>
