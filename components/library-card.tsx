@@ -47,11 +47,22 @@ function withAlpha(hex: string, alpha: number) {
  * a config that carries both paints two shadows on one view, and whichever the
  * view resolves last wins. `@rootnative/components` `0.0.0-alpha.16` documents
  * this and exports `elevationShadowConfig`, which makes the same split from a
- * `theme.elevation.level*` token. This card keeps its own values, because the
- * hover lift is taller and softer than any one token level.
+ * `theme.elevation.level*` token.
+ *
+ * **This card keeps its own values, and the helper cannot carry them.** Two
+ * reasons, both measured against alpha.16 rather than assumed:
+ *
+ * 1. The hover lift is taller, softer and lighter than every token. `level5`,
+ *    the deepest, is `offsetY: 8`, `shadowRadius: 12`, `shadowOpacity: 0.28`;
+ *    this card is 12, 20 and 0.18. `level2` — the level the cleanup task named
+ *    — is 2 and 4, so the swap would shorten the lift by 10 points.
+ * 2. `elevationShadowConfig` emits `shadowRadius` as the CSS blur radius
+ *    unchanged, and those two are not the same quantity. See the note below.
  *
  * The native blur is half the web one: `blurRadius` is a CSS blur diameter and
- * `shadowRadius` is the standard deviation behind it.
+ * `shadowRadius` is the standard deviation behind it. The library helper makes
+ * no such conversion, so a token rendered through it is tighter on web than on
+ * native. Filed as R9.
  */
 function shadowPair(shadowColor: string): { rest: ShadowConfig; hover: ShadowConfig } {
   if (Platform.OS === 'web') {
