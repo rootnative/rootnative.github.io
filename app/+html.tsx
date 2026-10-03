@@ -11,7 +11,7 @@ const DARK_BACKGROUND = '#0e141c'
  * would see a light page until the bundle hydrates and re-renders. This shell
  * paints the correct background before any JS runs and keeps the light-baked
  * content hidden for dark-mode visitors until the client applies the real
- * theme (`theme-ready`, added by hooks/use-color-scheme.web.ts). If the bundle
+ * theme (`theme-ready`, added by components/theme-ready-signal.web.tsx). If the bundle
  * never runs, the animation fallback reveals the content after 4s.
  *
  * The page also animates itself in with @rootnative/inertia, so the export

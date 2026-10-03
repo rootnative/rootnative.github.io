@@ -75,10 +75,10 @@ function ComponentsPreview() {
   return (
     <Row align="center" gap="sm" justify="center" wrap>
       <Chip leadingIcon="palette">Themed</Chip>
-      <Button variant="filled" size="xs">
+      <Button variant="filled" size="extraSmall">
         Filled
       </Button>
-      <Button variant="outlined" size="xs">
+      <Button variant="outlined" size="extraSmall">
         Outlined
       </Button>
     </Row>

@@ -1,17 +1,19 @@
+import { mdiResolver } from '@rootnative/components/mdi'
 import { ThemeProvider } from '@rootnative/core'
 import { MotionConfig } from '@rootnative/inertia'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 
-import { useColorScheme } from '../hooks/use-color-scheme'
+import { ThemeReadySignal } from '../components/theme-ready-signal'
 import { TRANSITIONS } from '../lib/motion'
 import { darkTheme, lightTheme } from '../lib/theme'
 
-export default function RootLayout() {
-  const scheme = useColorScheme()
+const THEMES = { light: lightTheme, dark: darkTheme }
 
+export default function RootLayout() {
   return (
-    <ThemeProvider theme={scheme === 'dark' ? darkTheme : lightTheme}>
+    <ThemeProvider theme={THEMES} iconResolver={mdiResolver}>
+      <ThemeReadySignal />
       {/* `reducedMotion="user"` is the default. It is written out because this
           site animates on load, and a visitor who asks the OS for less motion
           must get the page with no cascade at all. */}

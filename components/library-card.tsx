@@ -1,5 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { Box, Button, Card, Column, Row, Typography } from '@rootnative/components'
+import { Box, Button, Card, Column, Icon, Row, Typography } from '@rootnative/components'
 import { useTheme } from '@rootnative/core'
 import {
   Motion,
@@ -201,11 +200,7 @@ export function LibraryCard({
                   p="sm"
                   style={[styles.iconBadge, { backgroundColor: theme.colors.primaryContainer }]}
                 >
-                  <MaterialCommunityIcons
-                    name={icon as never}
-                    size={22}
-                    color={theme.colors.onPrimaryContainer}
-                  />
+                  <Icon source={icon} size={22} color={theme.colors.onPrimaryContainer} />
                 </Box>
               )}
               <Typography variant={featured ? 'headlineSmall' : 'titleLarge'}>{name}</Typography>

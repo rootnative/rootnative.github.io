@@ -19,11 +19,11 @@
     "build:cards": "node scripts/build-cards.mjs"
   },
   "dependencies": {
-    "@expo/vector-icons": "^15.0.3",
     "@material/material-color-utilities": "^0.4.0",
-    "@rootnative/components": "0.0.0-alpha.16",
-    "@rootnative/core": "0.0.0-alpha.16",
-    "@rootnative/inertia": "0.0.12",
+    "@react-native-vector-icons/material-design-icons": "^13.1.4",
+    "@rootnative/components": "0.0.0-alpha.22",
+    "@rootnative/core": "0.0.0-alpha.22",
+    "@rootnative/inertia": "0.0.17",
     "expo": "~57.0.21",
     "expo-constants": "~57.0.17",
     "expo-font": "~57.0.3",
