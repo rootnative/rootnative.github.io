@@ -1,4 +1,4 @@
-import { Box, Button, Card, Column, Icon, Row, Typography } from '@rootnative/components'
+import { Box, Card, Column, Icon, Row, Typography } from '@rootnative/components'
 import { useTheme } from '@rootnative/core'
 import {
   Motion,
@@ -12,13 +12,14 @@ import {
   useTransform,
 } from '@rootnative/inertia'
 import { useMemo, useRef } from 'react'
-import { Linking, Platform, StyleSheet, type View } from 'react-native'
+import { Platform, StyleSheet, type View } from 'react-native'
 
 import { statusFromVersion, type Library } from '../lib/libraries'
 import { ENTRANCE_MARKER, IN_VIEW } from '../lib/motion'
 import { useNpmVersion } from '../lib/use-npm-version'
 import { BrandMark } from './brand-mark'
 import { CardPreview } from './card-preview'
+import { LinkButton } from './link-button'
 
 /** How far a card travels on its way in, in points. */
 const REVEAL_TRAVEL = 28
@@ -203,7 +204,9 @@ export function LibraryCard({
                   <Icon source={icon} size={22} color={theme.colors.onPrimaryContainer} />
                 </Box>
               )}
-              <Typography variant={featured ? 'headlineSmall' : 'titleLarge'}>{name}</Typography>
+              <Typography level={2} variant={featured ? 'headlineSmall' : 'titleLarge'}>
+                {name}
+              </Typography>
               {/* The pills wait for the npm registry, so they always arrive
                   after the card. `Presence` gives them an entrance instead of
                   letting them appear in one frame. */}
@@ -275,21 +278,13 @@ export function LibraryCard({
 
             <Row align="center" gap="sm" wrap style={styles.footer}>
               {demoUrl ? (
-                <Button
-                  variant="tonal"
-                  trailingIcon="open-in-new"
-                  onPress={() => Linking.openURL(demoUrl)}
-                >
+                <LinkButton href={demoUrl} variant="tonal" trailingIcon="open-in-new">
                   Demo
-                </Button>
+                </LinkButton>
               ) : null}
-              <Button
-                variant="outlined"
-                leadingIcon="github"
-                onPress={() => Linking.openURL(githubUrl)}
-              >
+              <LinkButton href={githubUrl} variant="outlined" leadingIcon="github">
                 GitHub
-              </Button>
+              </LinkButton>
             </Row>
           </Column>
         </Card>

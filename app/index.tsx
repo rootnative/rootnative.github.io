@@ -1,18 +1,30 @@
-import { Box, Button, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
+import { Box, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
 import { useBreakpointValue, useTheme } from '@rootnative/core'
 import { Motion, Stagger, useInterpolatedStyle, useInView, useScroll } from '@rootnative/inertia'
-import Head from 'expo-router/head'
+import { PageHead } from '@rootnative/seo/expo-router'
+import { organization, webSite } from '@rootnative/seo/schema'
 import { useRef } from 'react'
-import { Linking, StyleSheet, Text, type View } from 'react-native'
+import { StyleSheet, Text, type View } from 'react-native'
 
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
+import { LinkButton } from '../components/link-button'
 import { Rise } from '../components/rise'
 import { ScrollAway } from '../components/scroll-away'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { ENTRANCE_MARKER, IN_VIEW, STAGGER_INTERVAL } from '../lib/motion'
+import { PAGE_DESCRIPTION, PAGE_TITLE, site } from '../lib/site'
 import { useScrollAway } from '../lib/use-scroll-away'
+
+const JSON_LD = [
+  organization({
+    name: site.name,
+    url: site.url,
+    sameAs: [LINKS.org],
+  }),
+  webSite({ name: site.name, url: site.url }),
+]
 
 /**
  * The card grid is 12 columns wide, and a card takes a span rather than a
@@ -74,13 +86,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Head>
-        <title>RootNative — libraries that power React Native & Expo apps</title>
-        <meta
-          name="description"
-          content="rootnative builds open-source libraries that power React Native & Expo apps — UI components, animations without the boilerplate, and a lightweight game engine."
-        />
-      </Head>
+      <PageHead title={PAGE_TITLE} description={PAGE_DESCRIPTION} url="/" jsonLd={JSON_LD} />
       <Motion.ScrollView
         style={{ backgroundColor: theme.colors.background }}
         contentContainerStyle={styles.scroll}
@@ -143,7 +149,7 @@ export default function HomeScreen() {
 
               <Rise style={styles.stretch}>
                 <ScrollAway progress={heroProgress} drift={HERO_DRIFT.title} style={styles.stretch}>
-                  <Typography variant={titleVariant} style={styles.title}>
+                  <Typography level={1} variant={titleVariant} style={styles.title}>
                     <Text style={{ color: theme.colors.primary }}>root</Text>
                     <Text style={{ color: theme.colors.onBackground }}>native</Text>
                   </Typography>
@@ -176,20 +182,12 @@ export default function HomeScreen() {
 
               <Rise style={styles.stretch}>
                 <Row gap="sm" wrap justify="center">
-                  <Button
-                    variant="filled"
-                    trailingIcon="arrow-right"
-                    onPress={() => Linking.openURL(LINKS.uiDocs)}
-                  >
+                  <LinkButton href={LINKS.uiDocs} variant="filled" trailingIcon="arrow-right">
                     Read the ui docs
-                  </Button>
-                  <Button
-                    variant="tonal"
-                    leadingIcon="github"
-                    onPress={() => Linking.openURL(LINKS.org)}
-                  >
+                  </LinkButton>
+                  <LinkButton href={LINKS.org} variant="tonal" leadingIcon="github">
                     GitHub
-                  </Button>
+                  </LinkButton>
                 </Row>
               </Rise>
             </Stagger>
@@ -213,15 +211,15 @@ export default function HomeScreen() {
           >
             <Column align="center" gap="md" style={styles.footer}>
               <Row gap="sm" wrap justify="center">
-                <Button variant="text" onPress={() => Linking.openURL(LINKS.uiDocs)}>
+                <LinkButton href={LINKS.uiDocs} variant="text">
                   ui docs
-                </Button>
-                <Button variant="text" onPress={() => Linking.openURL(LINKS.examples)}>
+                </LinkButton>
+                <LinkButton href={LINKS.examples} variant="text">
                   examples
-                </Button>
-                <Button variant="text" onPress={() => Linking.openURL(LINKS.repositories)}>
+                </LinkButton>
+                <LinkButton href={LINKS.repositories} variant="text">
                   all repositories
-                </Button>
+                </LinkButton>
               </Row>
               <Typography
                 variant="bodySmall"
