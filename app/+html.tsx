@@ -1,4 +1,5 @@
 import { entranceGuardCss, entranceGuardNoscriptCss } from '@rootnative/inertia/static-export'
+import { shellTags } from '@rootnative/seo/expo-router'
 import { ScrollViewStyleReset } from 'expo-router/html'
 import type { PropsWithChildren } from 'react'
 
@@ -39,6 +40,18 @@ const themeGuardCss = `
 `
 
 /**
+ * The hosts the first paint reads from: the org avatar in the hero and the
+ * library marks on the cards (`lib/brand-marks.ts`), and the version pills
+ * (`lib/use-npm-version.ts`). The pills use `fetch`, which is a CORS request,
+ * so that connection needs `crossOrigin`.
+ */
+const PRECONNECT = [
+  { href: 'https://avatars.githubusercontent.com' },
+  { href: 'https://raw.githubusercontent.com' },
+  { href: 'https://registry.npmjs.org', crossOrigin: true },
+]
+
+/**
  * No script at all, so the client never adds `theme-ready`. Reveal the page at
  * once instead of holding the visitor for the 4s fallback.
  * `entranceGuardNoscriptCss` does the same for the entrance values.
@@ -51,9 +64,13 @@ export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
+        {shellTags({ preconnect: PRECONNECT })}
+        {/* `shellTags` writes one theme colour, and this page has two. A browser
+            uses the first `theme-color` whose media matches, so each tag names
+            its scheme. */}
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content={LIGHT_BACKGROUND} />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={DARK_BACKGROUND} />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: themeGuardCss }} />
         <style dangerouslySetInnerHTML={{ __html: entranceGuardCss() }} />

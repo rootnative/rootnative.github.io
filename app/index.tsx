@@ -14,13 +14,14 @@ import { ScrollAway } from '../components/scroll-away'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { ENTRANCE_MARKER, IN_VIEW, STAGGER_INTERVAL } from '../lib/motion'
-import { PAGE_DESCRIPTION, PAGE_TITLE, site } from '../lib/site'
+import { PAGE_DESCRIPTION, PAGE_TITLE, SHARE_CARD, site } from '../lib/site'
 import { useScrollAway } from '../lib/use-scroll-away'
 
 const JSON_LD = [
   organization({
     name: site.name,
     url: site.url,
+    logo: SHARE_CARD.image,
     sameAs: [LINKS.org],
   }),
   webSite({ name: site.name, url: site.url }),
@@ -86,7 +87,13 @@ export default function HomeScreen() {
 
   return (
     <>
-      <PageHead title={PAGE_TITLE} description={PAGE_DESCRIPTION} url="/" jsonLd={JSON_LD} />
+      <PageHead
+        title={PAGE_TITLE}
+        description={PAGE_DESCRIPTION}
+        url="/"
+        {...SHARE_CARD}
+        jsonLd={JSON_LD}
+      />
       <Motion.ScrollView
         style={{ backgroundColor: theme.colors.background }}
         contentContainerStyle={styles.scroll}
@@ -142,7 +149,7 @@ export default function HomeScreen() {
                     {/* The organisation's own mark, read from its GitHub org
                         avatar. It is an opaque square, so unlike every library
                         mark it takes a radius — see `BrandMark`. */}
-                    <BrandMark uri={MARK_ORG} size={72} radius={18} label="rootnative logo" />
+                    <BrandMark uri={MARK_ORG} size={72} radius={18} label="Root Native logo" />
                   </Motion.View>
                 </ScrollAway>
               </Rise>
@@ -150,8 +157,8 @@ export default function HomeScreen() {
               <Rise style={styles.stretch}>
                 <ScrollAway progress={heroProgress} drift={HERO_DRIFT.title} style={styles.stretch}>
                   <Typography level={1} variant={titleVariant} style={styles.title}>
-                    <Text style={{ color: theme.colors.primary }}>root</Text>
-                    <Text style={{ color: theme.colors.onBackground }}>native</Text>
+                    <Text style={{ color: theme.colors.primary }}>Root</Text>{' '}
+                    <Text style={{ color: theme.colors.onBackground }}>Native</Text>
                   </Typography>
                 </ScrollAway>
               </Rise>

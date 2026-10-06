@@ -12,7 +12,7 @@ export default function NotFoundScreen() {
       {/* GitHub Pages serves this page as `404.html` at every unknown path, so
           it has no canonical URL. No `url` means no canonical link and no share
           card. */}
-      <PageHead title="Page not found — RootNative" noindex />
+      <PageHead title="Page not found — Root Native" noindex />
       <Column
         align="center"
         justify="center"
@@ -34,7 +34,7 @@ export default function NotFoundScreen() {
         <Row justify="center">
           <Link href="/" replace asChild>
             <Button variant="filled" leadingIcon="arrow-left">
-              Back to rootnative
+              Back to Root Native
             </Button>
           </Link>
         </Row>

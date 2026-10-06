@@ -32,6 +32,11 @@
     "web": {
       "output": "static",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {
+        "sitemap": false
+      }
     }
   }
 }
