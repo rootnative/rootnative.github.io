@@ -37,8 +37,8 @@ export const TRANSITIONS = {
    * A keyframe array is also safe now. Inertia 0.0.10 resolved each step of
    * an array to a plain number under reduced motion, handed those numbers to
    * `withSequence`, and threw `Cannot create property 'finished' on number`,
-   * which took the whole page down. Inertia 0.0.11 fixes that, and the site
-   * pins 0.0.11.
+   * which took the whole page down. Inertia 0.0.11 fixes that, so do not pin
+   * the site below 0.0.11.
    */
   float: {
     type: 'timing',

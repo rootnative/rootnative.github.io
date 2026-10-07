@@ -46,9 +46,10 @@ const FOOTER_TRAVEL = 20
  * separation is the depth cue. The order runs top to bottom, and the amounts
  * fall, so the badge leads and the tagline trails.
  *
- * The chips and the buttons take no drift at all. They are the hero's only
- * interactive rows, and a faded-but-still-clickable button is a worse trade
- * than a row that simply scrolls.
+ * The chips and the buttons take no drift at all. The buttons are the hero's
+ * only interactive row, and a faded-but-still-clickable button is a worse
+ * trade than a row that simply scrolls. The chips have no action, so they
+ * render as labels and that rule does not bind them.
  */
 const HERO_DRIFT = { badge: 88, mark: 68, title: 48, tagline: 32 }
 

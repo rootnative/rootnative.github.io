@@ -64,12 +64,10 @@ export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <head>
-        {shellTags({ preconnect: PRECONNECT })}
-        {/* `shellTags` writes one theme colour, and this page has two. A browser
-            uses the first `theme-color` whose media matches, so each tag names
-            its scheme. */}
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content={LIGHT_BACKGROUND} />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={DARK_BACKGROUND} />
+        {shellTags({
+          preconnect: PRECONNECT,
+          themeColor: { light: LIGHT_BACKGROUND, dark: DARK_BACKGROUND },
+        })}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: themeGuardCss }} />

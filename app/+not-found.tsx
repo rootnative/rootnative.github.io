@@ -1,4 +1,4 @@
-import { Button, Column, Row, Typography } from '@rootnative/components'
+import { Button, Column, Typography } from '@rootnative/components'
 import { useTheme } from '@rootnative/core'
 import { PageHead } from '@rootnative/seo/expo-router'
 import { Link } from 'expo-router'
@@ -30,14 +30,13 @@ export default function NotFoundScreen() {
           This address has no page. The libraries and their docs start from the home page.
         </Typography>
         {/* `Button` sets `alignSelf: 'flex-start'` on its own wrapper, which wins
-            over the column's `align="center"`. A row centres it. */}
-        <Row justify="center">
-          <Link href="/" replace asChild>
-            <Button variant="filled" leadingIcon="arrow-left">
-              Back to Root Native
-            </Button>
-          </Link>
-        </Row>
+            over the column's `align="center"`. An `alignSelf` in `style` goes to
+            that wrapper, so the button needs its own. */}
+        <Link href="/" replace asChild>
+          <Button variant="filled" leadingIcon="arrow-left" style={styles.button}>
+            Back to Root Native
+          </Button>
+        </Link>
       </Column>
     </>
   )
@@ -49,5 +48,8 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
+  },
+  button: {
+    alignSelf: 'center',
   },
 })

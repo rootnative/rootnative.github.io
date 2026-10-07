@@ -6,11 +6,11 @@ import 'react-native'
  *
  * Verified against the installed react-native-web, not assumed: `View` builds
  * its forward list from `forwardedProps`, and `dataSet` is in `defaultProps`.
- * `View` reads `hrefAttrs` when it has an `href`, and `Pressable` passes it
- * through to its `View`.
  *
  * `onFocus` and `onBlur` used to be declared here too. React Native 0.86 has
- * both on `ViewProps` itself, so the local copy is gone.
+ * both on `ViewProps` itself, so the local copy is gone. `hrefAttrs` went the
+ * same way, because `@rootnative/components` declares it. A second declaration
+ * with a different type fails with TS2717.
  */
 declare module 'react-native' {
   interface ViewProps {
@@ -19,10 +19,5 @@ declare module 'react-native' {
      * `app/+html.tsx` can reach the animated elements with plain CSS.
      */
     dataSet?: Record<string, string | number | undefined>
-    /**
-     * The `target`, `rel` and `download` of the `<a>` that a view with an
-     * `href` renders. `components/link-button.tsx` needs it for a new tab.
-     */
-    hrefAttrs?: { target?: string; rel?: string; download?: boolean | string }
   }
 }
