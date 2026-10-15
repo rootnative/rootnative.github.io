@@ -214,6 +214,7 @@ export default function HomeScreen() {
               marker by hand. See `ENTRANCE_MARKER`. */}
           <Motion.View
             ref={footerRef}
+            role="contentinfo"
             dataSet={ENTRANCE_MARKER}
             style={[styles.stretch, footerStyle]}
           >

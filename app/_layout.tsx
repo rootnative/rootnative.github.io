@@ -4,6 +4,7 @@ import { MotionConfig } from '@rootnative/inertia'
 import { SeoProvider } from '@rootnative/seo/react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { StyleSheet, View } from 'react-native'
 
 import { ThemeReadySignal } from '../components/theme-ready-signal'
 import { TRANSITIONS } from '../lib/motion'
@@ -21,10 +22,20 @@ export default function RootLayout() {
           must get the page with no cascade at all. */}
       <MotionConfig reducedMotion="user" transitions={TRANSITIONS}>
         <SeoProvider site={site}>
-          <Stack screenOptions={{ headerShown: false }} />
+          {/* `main` renders `<main>` on the web, one per page, around the
+              screen. The footer of the home page is the `contentinfo`. */}
+          <View role="main" style={styles.main}>
+            <Stack screenOptions={{ headerShown: false }} />
+          </View>
         </SeoProvider>
       </MotionConfig>
       <StatusBar style="auto" />
     </ThemeProvider>
   )
 }
+
+const styles = StyleSheet.create({
+  main: {
+    flex: 1,
+  },
+})
