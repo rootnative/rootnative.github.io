@@ -155,7 +155,7 @@ export default function HomeScreen() {
                 </ScrollAway>
               </Rise>
 
-              <Rise style={styles.stretch}>
+              <Rise style={styles.stretch} fade={false}>
                 <ScrollAway progress={heroProgress} drift={HERO_DRIFT.title} style={styles.stretch}>
                   <Typography level={1} variant={titleVariant} style={styles.title}>
                     <Text style={{ color: theme.colors.primary }}>Root</Text>{' '}
@@ -164,7 +164,7 @@ export default function HomeScreen() {
                 </ScrollAway>
               </Rise>
 
-              <Rise style={styles.stretch}>
+              <Rise style={styles.stretch} fade={false}>
                 <ScrollAway
                   progress={heroProgress}
                   drift={HERO_DRIFT.tagline}

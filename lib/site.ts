@@ -26,4 +26,4 @@ export const SHARE_CARD = {
 } satisfies Pick<PageMeta, 'image' | 'imageSize' | 'imageAlt' | 'twitterCard'>
 
 export const PAGE_DESCRIPTION =
-  'Root Native builds open-source libraries that power React Native & Expo apps — UI components, animations without the boilerplate, and a lightweight game engine.'
+  'Root Native builds open-source libraries that power React Native & Expo apps — UI components, animations and gestures without boilerplate, and a game engine.'
