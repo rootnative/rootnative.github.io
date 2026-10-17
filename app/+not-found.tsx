@@ -29,11 +29,8 @@ export default function NotFoundScreen() {
         >
           This address has no page. The libraries and their docs start from the home page.
         </Typography>
-        {/* `Button` sets `alignSelf: 'flex-start'` on its own wrapper, which wins
-            over the column's `align="center"`. An `alignSelf` in `style` goes to
-            that wrapper, so the button needs its own. */}
         <Link href="/" replace asChild>
-          <Button variant="filled" leadingIcon="arrow-left" style={styles.button}>
+          <Button variant="filled" leadingIcon="arrow-left">
             Back to Root Native
           </Button>
         </Link>
@@ -48,8 +45,5 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
-  },
-  button: {
-    alignSelf: 'center',
   },
 })

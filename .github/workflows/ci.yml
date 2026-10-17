@@ -72,3 +72,9 @@ jobs:
       # missing +not-found route breaks the Pages 404 without failing the build.
       - name: Static export produced the 404 source
         run: test -f dist/+not-found.html
+
+      # The audit at the end of `export:web` reads the HTML only. A hydration
+      # mismatch or a bundle that fails to load leaves the HTML correct and the
+      # page broken, so this loads every page in the runner's Chrome.
+      - name: Browser check
+        run: yarn browse:web
