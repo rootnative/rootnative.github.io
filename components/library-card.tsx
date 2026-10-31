@@ -12,7 +12,7 @@ import {
   useTransform,
 } from '@rootnative/inertia'
 import { useMemo, useRef } from 'react'
-import { Platform, StyleSheet, type View } from 'react-native'
+import { Platform, StyleSheet, type ViewInstance } from 'react-native'
 
 import { statusFromVersion, type Library } from '../lib/libraries'
 import { ENTRANCE_MARKER, IN_VIEW } from '../lib/motion'
@@ -120,7 +120,7 @@ export function LibraryCard({
   // counted from page load, so a card below the fold still enters where the
   // visitor sees it. The card holds its own ref and answers for itself —
   // `useInView` needs nothing from the page.
-  const cardRef = useRef<View>(null)
+  const cardRef = useRef<ViewInstance>(null)
   const inView = useInView(cardRef, IN_VIEW)
   const revealStyle = useInterpolatedStyle(inView, {
     opacity: [0, 1],

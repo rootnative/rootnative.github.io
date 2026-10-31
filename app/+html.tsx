@@ -1,6 +1,6 @@
 import { entranceGuardCss, entranceGuardNoscriptCss } from '@rootnative/inertia/static-export'
 import { shellTags } from '@rootnative/seo/expo-router'
-import { ScrollViewStyleReset } from 'expo-router/html'
+import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html'
 import type { PropsWithChildren } from 'react'
 
 // Keep in sync with lib/theme.ts (createMaterialTheme('#60A5FA', { variant: 'vibrant' })).
@@ -61,8 +61,9 @@ body { visibility: visible !important; }
 `
 
 export default function Root({ children }: PropsWithChildren) {
+  const { htmlAttributes, headNodes, bodyAttributes, bodyNodes } = useServerDocumentContext()
   return (
-    <html lang="en">
+    <html lang="en" {...htmlAttributes}>
       <head>
         {shellTags({
           preconnect: PRECONNECT,
@@ -76,8 +77,16 @@ export default function Root({ children }: PropsWithChildren) {
           <style dangerouslySetInnerHTML={{ __html: noscriptCss }} />
           <style dangerouslySetInnerHTML={{ __html: entranceGuardNoscriptCss }} />
         </noscript>
+        {/* From Expo SDK 58 the server renderer gives the page metadata, the CSS and the
+            JavaScript bundles to this shell. Without these nodes the page has no head tags
+            and does not hydrate. They come after `shellTags`, so the charset stays in the
+            first 1024 bytes. */}
+        {headNodes}
       </head>
-      <body>{children}</body>
+      <body {...bodyAttributes}>
+        {children}
+        {bodyNodes}
+      </body>
     </html>
   )
 }

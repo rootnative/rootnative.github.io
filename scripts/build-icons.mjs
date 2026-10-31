@@ -513,8 +513,7 @@ async function main() {
   // silently framing a near-black icon in a halo of the wrong colour.
   //
   // The splash colour is read out of the `expo-splash-screen` PLUGIN entry, not
-  // from a top-level `splash` key. Expo SDK 57 -- the band this repo pins --
-  // dropped that key, so this app.json configures the splash through the plugin
+  // from a top-level `splash` key. Expo SDK 57 dropped that key, so this app.json configures the splash through the plugin
   // the way `ui/example` and `ui-example` do. Reading `expo.splash` here would
   // find nothing and this check would pass by never running.
   const appJson = JSON.parse(readFileSync(path.join(ROOT, 'app.json'), 'utf8')).expo

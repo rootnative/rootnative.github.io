@@ -1,10 +1,11 @@
 import { Box, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
 import { useBreakpointValue, useTheme } from '@rootnative/core'
 import { Motion, Stagger, useInterpolatedStyle, useInView, useScroll } from '@rootnative/inertia'
+import { toMetadata, type PageMeta } from '@rootnative/seo'
 import { PageHead } from '@rootnative/seo/expo-router'
 import { organization, webSite } from '@rootnative/seo/schema'
 import { useRef } from 'react'
-import { StyleSheet, Text, type View } from 'react-native'
+import { StyleSheet, Text, type ViewInstance } from 'react-native'
 
 import { BrandMark } from '../components/brand-mark'
 import { LibraryCard } from '../components/library-card'
@@ -26,6 +27,22 @@ const JSON_LD = [
   }),
   webSite({ name: site.name, url: site.url }),
 ]
+
+const PAGE_META = {
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  url: '/',
+  ...SHARE_CARD,
+} satisfies PageMeta
+
+/**
+ * From Expo SDK 58 the static export writes the head from this export, not
+ * from `PageHead`. `PageHead` still writes the JSON-LD, which `Metadata` has no
+ * field for, and the head after a client navigation.
+ */
+export function generateMetadata() {
+  return toMetadata(site, PAGE_META)
+}
 
 /**
  * The card grid is 12 columns wide, and a card takes a span rather than a
@@ -79,7 +96,7 @@ export default function HomeScreen() {
   const { scrollY, onScroll } = useScroll()
   const { onLayout: onHeroLayout, progress: heroProgress } = useScrollAway(scrollY)
 
-  const footerRef = useRef<View>(null)
+  const footerRef = useRef<ViewInstance>(null)
   const footerInView = useInView(footerRef, IN_VIEW)
   const footerStyle = useInterpolatedStyle(footerInView, {
     opacity: [0, 1],
@@ -88,13 +105,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <PageHead
-        title={PAGE_TITLE}
-        description={PAGE_DESCRIPTION}
-        url="/"
-        {...SHARE_CARD}
-        jsonLd={JSON_LD}
-      />
+      <PageHead {...PAGE_META} jsonLd={JSON_LD} />
       <Motion.ScrollView
         style={{ backgroundColor: theme.colors.background }}
         contentContainerStyle={styles.scroll}

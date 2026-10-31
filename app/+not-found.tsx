@@ -11,7 +11,9 @@ export default function NotFoundScreen() {
     <>
       {/* GitHub Pages serves this page as `404.html` at every unknown path, so
           it has no canonical URL. No `url` means no canonical link and no share
-          card. */}
+          card. The Expo SDK 58 export writes no head for this route, so
+          scripts/write-not-found-head.mjs writes the same head after the export. Change
+          both together. */}
       <PageHead title="Page not found — Root Native" noindex />
       <Column
         align="center"

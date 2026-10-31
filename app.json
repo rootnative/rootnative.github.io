@@ -27,7 +27,9 @@
           "backgroundColor": "#0a0a0b"
         }
       ],
-      "@react-native-vector-icons/material-design-icons"
+      "@react-native-vector-icons/material-design-icons",
+      "expo-font",
+      "expo-status-bar"
     ],
     "web": {
       "output": "static",
