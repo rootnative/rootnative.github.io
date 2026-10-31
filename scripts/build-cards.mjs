@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds the five library cards in the README from each library's own mark.
+// Builds the six library cards in the README from each library's own mark.
 //
 //   yarn build:cards
 //
@@ -127,6 +127,20 @@ const CARDS = [
     label: 'impulse — declarative gesture primitives for React Native',
   },
   {
+    file: 'card-devhub.svg',
+    name: 'devhub',
+    id: 'devhub',
+    mark: `${RAW}/rootnative/devhub/main/assets/brand/devhub-mark-dark.svg`,
+    npmPackage: '@rootnative/devhub',
+    description: [
+      'Keep every Expo dev build on your machine. Find the one',
+      'that matches your code, and launch it.',
+    ],
+    meta: 'sync, install, match · CLI and local page',
+    demo: true,
+    label: 'devhub — keep every Expo dev build, and launch any one',
+  },
+  {
     file: 'card-game-engine.svg',
     name: 'game-engine',
     id: 'ge',
@@ -187,7 +201,7 @@ async function publishedStatus(npmPackage) {
 /**
  * A brand mark, inlined at `size`.
  *
- * Every id inside it is prefixed, because five cards go into one README and a
+ * Every id inside it is prefixed, because six cards go into one README and a
  * duplicate gradient id would make one card paint with another's gradient.
  */
 function inlineMark(source, id, x, y, size) {

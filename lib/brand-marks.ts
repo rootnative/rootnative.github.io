@@ -43,3 +43,5 @@ export const MARK_INERTIA = `${RAW}/rootnative/inertia/main/assets/brand/inertia
 export const MARK_IMPULSE = `${RAW}/rootnative/impulse/main/assets/brand/impulse-mark.png`
 
 export const MARK_GAME_ENGINE = `${RAW}/rootnative/game-engine/main/assets/brand/game-engine-mark.png`
+
+export const MARK_DEVHUB = `${RAW}/rootnative/devhub/main/assets/brand/devhub-mark.png`

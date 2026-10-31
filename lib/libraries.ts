@@ -1,4 +1,4 @@
-import { MARK_GAME_ENGINE, MARK_IMPULSE, MARK_INERTIA, MARK_UI } from './brand-marks'
+import { MARK_DEVHUB, MARK_GAME_ENGINE, MARK_IMPULSE, MARK_INERTIA, MARK_UI } from './brand-marks'
 
 export type LibraryStatus = 'in the lab' | 'experimental' | 'alpha' | 'beta' | 'stable'
 
@@ -97,6 +97,18 @@ export const LIBRARIES: Library[] = [
     meta: 'useTap, useDoubleTap, useLongPress, useDrag · powered by react-native-gesture-handler',
     githubUrl: 'https://github.com/rootnative/impulse',
     demoUrl: 'https://rootnative.github.io/impulse/',
+  },
+  {
+    name: 'devhub',
+    icon: 'cellphone-link',
+    mark: MARK_DEVHUB,
+    description:
+      'Keep every Expo dev build on your machine. Find the one that matches your code, and launch it.',
+    status: 'alpha',
+    npmPackage: '@rootnative/devhub',
+    meta: 'sync, install, match · CLI and local page',
+    githubUrl: 'https://github.com/rootnative/devhub',
+    demoUrl: 'https://rootnative.github.io/devhub/',
   },
   {
     name: 'game-engine',
