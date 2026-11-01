@@ -16,6 +16,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "yarn lint && yarn typecheck && yarn format:check",
+    "showcase:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-showcase.mjs",
     "build:icons": "node scripts/build-icons.mjs",
     "build:cards": "node scripts/build-cards.mjs"
   },

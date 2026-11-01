@@ -1,0 +1,47 @@
+name: Showcase
+
+# Each showcase image is a URL that the site reads at view time, so the check
+# downloads every image to read its type, size and dimensions. It needs the
+# network, so it is not part of `yarn verify` and runs only when the showcase
+# changes: a host that is down must not fail an unrelated pull request.
+# ci.yml still typechecks and lints every entry.
+#
+# Action pins follow ci.yml: a commit SHA, with its tag in the comment.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'showcase/**'
+      - 'lib/showcase.ts'
+      - 'scripts/check-showcase.mjs'
+      - '.github/workflows/showcase.yml'
+  pull_request:
+    paths:
+      - 'showcase/**'
+      - 'lib/showcase.ts'
+      - 'scripts/check-showcase.mjs'
+      - '.github/workflows/showcase.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: showcase-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Showcase entries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      # The script imports only Node built-ins, and each entry imports only a
+      # type, so the job needs no `yarn install`.
+      - name: Check the entries and download each image
+        run: yarn showcase:check
