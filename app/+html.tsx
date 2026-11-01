@@ -1,3 +1,5 @@
+import { darkTheme } from '@rootnative/core'
+import { schemeGuardCss, schemeGuardScript } from '@rootnative/core/static-export'
 import { entranceGuardCss, entranceGuardNoscriptCss } from '@rootnative/inertia/static-export'
 import { shellTags } from '@rootnative/seo/expo-router'
 import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html'
@@ -5,39 +7,29 @@ import type { PropsWithChildren } from 'react'
 
 // Keep in sync with lib/theme.ts (createMaterialTheme('#60A5FA', { variant: 'vibrant' })).
 const LIGHT_BACKGROUND = '#f8f9ff'
-const DARK_BACKGROUND = '#0e141c'
+const DARK_BACKGROUND = darkTheme.colors.background
 
 /**
- * Static rendering bakes the light theme into the HTML, so dark-mode visitors
- * would see a light page until the bundle hydrates and re-renders. This shell
- * paints the correct background before any JS runs and keeps the light-baked
- * content hidden for dark-mode visitors until the client applies the real
- * theme (`theme-ready`, added by components/theme-ready-signal.web.tsx). If the bundle
- * never runs, the animation fallback reveals the content after 4s.
- *
- * The page also animates itself in with @rootnative/inertia, so the export
- * bakes `opacity: 0` into every element that waits for an entrance. The
- * library's own guard covers those — see `entranceGuardCss` below. This block
- * covers the theme only.
+ * The CSS paints before any JS runs, so the light background is a literal. The
+ * dark first paint is the job of `schemeGuardCss` below: the export bakes the
+ * light theme into the HTML, and the guard hides it from a dark-scheme reader
+ * until `ThemeProvider` shows the final theme.
  */
-const themeGuardCss = `
+const rootCss = `
 :root {
   color-scheme: light dark;
   background-color: ${LIGHT_BACKGROUND};
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    background-color: ${DARK_BACKGROUND};
-  }
-  body:not(.theme-ready) {
-    visibility: hidden;
-    animation: theme-guard-timeout 0s 4s forwards;
-  }
-  @keyframes theme-guard-timeout {
-    to { visibility: visible; }
-  }
-}
 `
+
+/**
+ * The site keeps no theme mode in storage, so the guard reads the OS scheme
+ * only.
+ */
+const schemeGuard = {
+  script: schemeGuardScript({ storageKey: null }),
+  css: schemeGuardCss({ background: DARK_BACKGROUND }),
+}
 
 /**
  * The hosts the first paint reads from: the org avatar in the hero and the
@@ -51,15 +43,6 @@ const PRECONNECT = [
   { href: 'https://registry.npmjs.org', crossOrigin: true },
 ]
 
-/**
- * No script at all, so the client never adds `theme-ready`. Reveal the page at
- * once instead of holding the visitor for the 4s fallback.
- * `entranceGuardNoscriptCss` does the same for the entrance values.
- */
-const noscriptCss = `
-body { visibility: visible !important; }
-`
-
 export default function Root({ children }: PropsWithChildren) {
   const { htmlAttributes, headNodes, bodyAttributes, bodyNodes } = useServerDocumentContext()
   return (
@@ -71,10 +54,11 @@ export default function Root({ children }: PropsWithChildren) {
         })}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <ScrollViewStyleReset />
-        <style dangerouslySetInnerHTML={{ __html: themeGuardCss }} />
+        <style dangerouslySetInnerHTML={{ __html: rootCss }} />
+        <script dangerouslySetInnerHTML={{ __html: schemeGuard.script }} />
+        <style dangerouslySetInnerHTML={{ __html: schemeGuard.css }} />
         <style dangerouslySetInnerHTML={{ __html: entranceGuardCss() }} />
         <noscript>
-          <style dangerouslySetInnerHTML={{ __html: noscriptCss }} />
           <style dangerouslySetInnerHTML={{ __html: entranceGuardNoscriptCss }} />
         </noscript>
         {/* From Expo SDK 58 the server renderer gives the page metadata, the CSS and the
