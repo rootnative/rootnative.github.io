@@ -1,9 +1,10 @@
-import { Box, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
+import { Box, Button, Chip, Column, Grid, Row, Typography } from '@rootnative/components'
 import { useBreakpointValue, useTheme } from '@rootnative/core'
 import { Motion, Stagger, useInterpolatedStyle, useInView, useScroll } from '@rootnative/inertia'
 import { toMetadata, type PageMeta } from '@rootnative/seo'
 import { PageHead } from '@rootnative/seo/expo-router'
 import { organization, webSite } from '@rootnative/seo/schema'
+import { Link } from 'expo-router'
 import { useRef } from 'react'
 import { StyleSheet, Text, type ViewInstance } from 'react-native'
 
@@ -12,6 +13,7 @@ import { LibraryCard } from '../components/library-card'
 import { LinkButton } from '../components/link-button'
 import { Rise } from '../components/rise'
 import { ScrollAway } from '../components/scroll-away'
+import { ShowcaseSection } from '../components/showcase-section'
 import { MARK_ORG } from '../lib/brand-marks'
 import { LIBRARIES, LINKS } from '../lib/libraries'
 import { ENTRANCE_MARKER, IN_VIEW, STAGGER_INTERVAL } from '../lib/motion'
@@ -204,6 +206,13 @@ export default function HomeScreen() {
                   <LinkButton href={LINKS.uiDocs} variant="filled" trailingIcon="arrow-right">
                     Read the ui docs
                   </LinkButton>
+                  {/* The showcase is also below the library grid, but this row
+                      is in the first viewport. */}
+                  <Link href="/showcase" asChild>
+                    <Button variant="tonal" leadingIcon="apps">
+                      Apps built with it
+                    </Button>
+                  </Link>
                   <LinkButton href={LINKS.org} variant="tonal" leadingIcon="github">
                     GitHub
                   </LinkButton>
@@ -219,6 +228,8 @@ export default function HomeScreen() {
               </Grid.Cell>
             ))}
           </Grid>
+
+          <ShowcaseSection />
 
           {/* No `initial` here — the footer starts hidden because its in-view
               value starts at 0, which the library cannot see. It carries the
@@ -237,6 +248,10 @@ export default function HomeScreen() {
                 <LinkButton href={LINKS.examples} variant="text">
                   examples
                 </LinkButton>
+                {/* A page of this site, so it opens in the same tab. */}
+                <Link href="/showcase" asChild>
+                  <Button variant="text">showcase</Button>
+                </Link>
                 <LinkButton href={LINKS.repositories} variant="text">
                   all repositories
                 </LinkButton>
